@@ -1,0 +1,3748 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>OAA Malanje · Gestão Financeira</title>
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f1c40f">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #667b8f 0%, #8ba0b8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1400px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        :root {
+            --amarelo: #f1c40f;
+            --azul: #1e3c72;
+            --azul-claro: #2a4d8c;
+            --preto: #2c3e50;
+            --verde: #27ae60;
+            --vermelho: #c0392b;
+            --cinza: #7f8c8d;
+        }
+
+        /* ===== LOGIN ===== */
+        .login-screen {
+            padding: 20px 15px;
+            text-align: center;
+        }
+
+        .login-logo-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .login-logo-icon img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid var(--amarelo);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            object-fit: cover;
+            background: white;
+        }
+
+        .login-logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--preto);
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+            line-height: 1.2;
+            margin-top: 10px;
+        }
+
+        .login-logo-sub {
+            font-size: 0.9rem;
+            color: var(--azul);
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .login-card {
+            max-width: 350px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            padding: 25px 20px;
+            border: 2px solid rgba(255,255,255,0.9);
+        }
+
+        .login-card h2 {
+            color: var(--azul);
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: var(--preto);
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.7);
+            border-radius: 50px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--azul);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(30,60,114,0.2);
+        }
+
+        /* ===== BOTÕES ===== */
+        .btn {
+            background: var(--azul);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--azul-claro);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+        }
+
+        .btn-amarelo {
+            background: var(--amarelo);
+            color: var(--preto);
+            border-color: var(--azul);
+        }
+
+        .btn-amarelo:hover {
+            background: #f39c12;
+        }
+
+        .btn-vermelho {
+            background: var(--vermelho);
+            color: white;
+        }
+
+        .btn-vermelho:hover {
+            background: #e74c3c;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--azul);
+            color: var(--azul);
+        }
+
+        .btn-outline:hover {
+            background: var(--azul);
+            color: white;
+        }
+
+        /* ===== DASHBOARD ===== */
+        .dashboard {
+            display: none;
+        }
+
+        .top-bar {
+            background: rgba(30, 60, 114, 0.9);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--amarelo);
+            gap: 10px;
+        }
+
+        .logo-mini {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge-role {
+            background: var(--amarelo);
+            color: var(--preto);
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: var(--azul);
+        }
+
+        /* ===== CARDS ===== */
+        .saldos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 15px;
+        }
+
+        .saldo-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.9);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .saldo-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .saldo-card-header i {
+            font-size: 1.3rem;
+            color: var(--azul);
+        }
+
+        .saldo-card-header span {
+            font-weight: 600;
+            color: var(--azul);
+            font-size: 0.9rem;
+            word-break: break-word;
+        }
+
+        .saldo-valor {
+            font-size: 1.3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .saldo-positivo {
+            color: var(--verde);
+        }
+
+        .saldo-negativo {
+            color: var(--vermelho);
+        }
+
+        .saldo-valor small {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #34495e;
+        }
+
+        .btn-editar-saldo {
+            background: var(--azul);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+            align-self: flex-start;
+            margin-top: auto;
+        }
+
+        .btn-editar-saldo:hover {
+            background: var(--azul-claro);
+            transform: translateY(-2px);
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 0 15px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid rgba(241,196,15,0.3);
+        }
+
+        .tab {
+            padding: 8px 12px;
+            font-weight: 600;
+            border-radius: 30px 30px 0 0;
+            background: rgba(255,255,255,0.4);
+            backdrop-filter: blur(4px);
+            cursor: pointer;
+            color: var(--preto);
+            transition: 0.2s;
+            font-size: 0.8rem;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .tab.active {
+            background: var(--amarelo);
+            color: var(--azul);
+            font-weight: 700;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 10px 15px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ===== FORMULÁRIOS ===== */
+        .card-form {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+
+        .flex-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .field {
+            flex: 1 1 150px;
+            min-width: 130px;
+        }
+
+        .field label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--azul);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 30px;
+            border: 2px solid rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--azul);
+            background: white;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 5px 0;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* ===== TABELAS ===== */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.3);
+            backdrop-filter: blur(4px);
+            margin: 8px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: var(--azul);
+            color: white;
+            padding: 12px 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 6px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            background: #f39c12;
+            padding: 3px 8px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            color: white;
+        }
+
+        .status-approved {
+            background: var(--verde);
+        }
+
+        .actions button {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            margin: 0 3px;
+            cursor: pointer;
+            color: var(--azul);
+            transition: 0.2s;
+        }
+
+        .actions button:hover {
+            transform: scale(1.2);
+            color: var(--amarelo);
+        }
+
+        /* ===== FILTROS ===== */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+            align-items: center;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px 15px;
+            border-radius: 40px;
+            border: 2px solid rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.7);
+            flex: 1 1 180px;
+            font-size: 0.9rem;
+        }
+
+        /* ===== GRÁFICO ===== */
+        .chart-container {
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto !important;
+        }
+
+        /* ===== MODAIS ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            padding: 12px;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            max-width: 450px;
+            width: 100%;
+            border-radius: 36px;
+            padding: 24px;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.9);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: var(--azul);
+            font-size: 1.3rem;
+        }
+
+        .modal-content .field {
+            margin-bottom: 12px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .modal-buttons .btn {
+            min-width: 90px;
+            flex: 1 1 auto;
+        }
+
+        /* ===== LISTA DE USUÁRIOS ===== */
+        .user-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.5);
+            backdrop-filter: blur(4px);
+            margin: 6px 0;
+            padding: 10px 14px;
+            border-radius: 40px;
+            border: 1px solid white;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .user-info-text {
+            flex: 1 1 250px;
+            font-size: 0.9rem;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .blocked {
+            opacity: 0.6;
+            background: rgba(200,200,200,0.4);
+        }
+
+        /* ===== AVISOS ===== */
+        .pwd-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 40px;
+            padding: 10px 16px;
+            margin: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+
+        hr {
+            margin: 15px 0;
+            border: 1px solid rgba(241,196,15,0.3);
+        }
+
+        /* ===== CONFIG ITENS ===== */
+        .config-item {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .config-item input {
+            flex: 1 1 150px;
+            padding: 8px;
+            border-radius: 30px;
+            border: 1px solid #ccc;
+        }
+
+        .config-item button {
+            background: var(--vermelho);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+        }
+
+        /* ===== INDICADORES PERSONALIZADOS ===== */
+        .indicador-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 40px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+
+        .indicador-info {
+            flex: 1;
+        }
+
+        .indicador-nome {
+            font-weight: 600;
+            color: var(--azul);
+        }
+
+        .indicador-valor {
+            font-size: 0.9rem;
+            color: var(--preto);
+        }
+
+        .btn-remover-indicador {
+            background: var(--vermelho);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        /* ===== BOTÕES + E TRANSFERIR ===== */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn-add-indicador, .btn-transferir {
+            background: var(--amarelo);
+            color: var(--azul);
+            border: 2px solid var(--azul);
+            border-radius: 60px;
+            padding: 12px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-transferir {
+            background: var(--azul);
+            color: var(--amarelo);
+            font-size: 1.8rem;
+        }
+
+        .btn-add-indicador:hover, .btn-transferir:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-add-indicador:hover {
+            background: var(--azul);
+            color: var(--amarelo);
+            border-color: var(--amarelo);
+        }
+
+        .btn-transferir:hover {
+            background: var(--amarelo);
+            color: var(--azul);
+            border-color: var(--azul);
+        }
+
+        /* ===== EMOUMENTOS LISTA ===== */
+        .emolumento-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.4);
+            border-radius: 40px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.6);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .emolumento-info {
+            flex: 1;
+        }
+
+        .emolumento-codigo {
+            font-weight: 600;
+            color: var(--azul);
+            margin-right: 10px;
+        }
+
+        .emolumento-descricao {
+            font-size: 0.9rem;
+        }
+
+        .emolumento-valor {
+            font-weight: 600;
+            color: var(--preto);
+        }
+
+        .emolumento-actions button {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            margin: 0 4px;
+            cursor: pointer;
+            color: var(--azul);
+        }
+
+        .emolumento-actions button:hover {
+            color: var(--amarelo);
+        }
+
+        /* ===== RESPONSIVIDADE EXTRA ===== */
+        @media (max-width: 600px) {
+            .login-logo-text {
+                font-size: 1.2rem;
+            }
+            .login-card {
+                padding: 20px 15px;
+            }
+            .login-card h2 {
+                font-size: 1.2rem;
+            }
+            .saldo-valor {
+                font-size: 1.1rem;
+            }
+            .saldo-card-header span {
+                font-size: 0.75rem;
+            }
+            .tab {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+                min-width: 50px;
+            }
+            .btn-add-indicador, .btn-transferir {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ===== PROFESSIONAL CONFIRM MODAL ===== */
+        .confirm-modal-content {
+            text-align: center;
+        }
+        .confirm-icon {
+            font-size: 3rem;
+            color: var(--amarelo);
+            margin-bottom: 15px;
+        }
+        .confirm-message {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* ===== BOTÕES LADO A LADO ===== */
+        .config-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="appContainer">
+    <!-- TELA DE LOGIN -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-logo-wrapper">
+            <div class="login-logo-icon">
+                <img src="logo-oaa.png" alt="OAA Logo" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'80\' height=\'80\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%231e3c72\' stroke=\'%23f1c40f\' stroke-width=\'4\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'40\' text-anchor=\'middle\' fill=\'%23f1c40f\' font-family=\'Arial\' font-weight=\'bold\'%3EOAA%3C/text%3E%3C/svg%3E';">
+            </div>
+            <div class="login-logo-text">Ordem dos Advogados<br>de Angola</div>
+            <div class="login-logo-sub">Malanje · Fluxo de Caixa</div>
+        </div>
+        <div class="login-card">
+            <h2>Acesso restrito</h2>
+            <div class="input-group">
+                <label><i class="fas fa-envelope"></i> E-mail</label>
+                <input type="email" id="loginEmail" value="" placeholder="seu@email.com">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-lock"></i> Palavra-passe</label>
+                <input type="password" id="loginPassword" value="" placeholder="••••••••">
+            </div>
+            <button class="btn" id="loginBtn" style="width: 100%;">Entrar</button>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="dashboard">
+        <div class="top-bar">
+            <div class="logo-mini">
+                <i class="fas fa-scale-balanced"></i>
+                <span id="mainTitle">OAA MALANJE</span>
+            </div>
+            <div class="user-info">
+                <span id="displayName"></span>
+                <span class="badge-role" id="displayRole"></span>
+                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </div>
+
+        <div id="pwdWarningBanner" class="pwd-warning" style="display: none;">
+            <i class="fas fa-exclamation-triangle" style="color: #e67e22;"></i>
+            <span id="pwdWarningText">A sua palavra-passe expirou. <a href="#" id="changePwdLink" style="color: var(--azul); font-weight: 600;">Altere agora</a> (válida 3 meses).</span>
+        </div>
+
+        <!-- CARDS DE SALDO (FIXOS + PERSONALIZADOS) -->
+        <div class="saldos-container" id="saldosContainer">
+            <!-- Saldo de Despesas -->
+            <div class="saldo-card">
+                <div class="saldo-card-header">
+                    <i class="fas fa-wallet"></i>
+                    <span id="cardDespesasLabel">Saldo de Despesas</span>
+                </div>
+                <div class="saldo-valor" id="saldoDespesas">2.000.000,00 <small>Kz</small></div>
+                <button class="btn-editar-saldo" id="editarSaldoDespesasBtn" style="display: none;"><i class="fas fa-pencil-alt"></i> Ajustar</button>
+            </div>
+
+            <!-- Saldo de Receitas -->
+            <div class="saldo-card">
+                <div class="saldo-card-header">
+                    <i class="fas fa-coins"></i>
+                    <span id="cardReceitasLabel">Saldo de Receitas</span>
+                </div>
+                <div class="saldo-valor" id="saldoReceitas">0,00 <small>Kz</small></div>
+                <button class="btn-editar-saldo" id="editarSaldoReceitasBtn" style="display: none;"><i class="fas fa-pencil-alt"></i> Ajustar</button>
+            </div>
+
+            <!-- Gastos (Despesas) -->
+            <div class="saldo-card">
+                <div class="saldo-card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="cardGastosDespesasLabel">Gastos (Despesas)</span>
+                </div>
+                <div class="saldo-valor" id="gastosDespesas">0,00 <small>Kz</small></div>
+                <button class="btn-editar-saldo" id="editarGastosDespesasBtn" style="display: none;"><i class="fas fa-pencil-alt"></i> Ajustar</button>
+            </div>
+
+            <!-- Gastos (Receitas) -->
+            <div class="saldo-card">
+                <div class="saldo-card-header">
+                    <i class="fas fa-chart-pie"></i>
+                    <span id="cardGastosReceitasLabel">Gastos (Receitas)</span>
+                </div>
+                <div class="saldo-valor" id="gastosReceitas">0,00 <small>Kz</small></div>
+                <button class="btn-editar-saldo" id="editarGastosReceitasBtn" style="display: none;"><i class="fas fa-pencil-alt"></i> Ajustar</button>
+            </div>
+
+            <!-- Quotas Recebidas -->
+            <div class="saldo-card">
+                <div class="saldo-card-header">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span id="cardQuotasLabel">Quotas Recebidas</span>
+                </div>
+                <div class="saldo-valor" id="quotasRecebidas">0,00 <small>Kz</small></div>
+                <button class="btn-editar-saldo" id="editarQuotasRecebidasBtn" style="display: none;"><i class="fas fa-pencil-alt"></i> Ajustar</button>
+            </div>
+
+            <!-- Cards personalizados serão inseridos aqui dinamicamente -->
+        </div>
+
+        <!-- Botões de ação (só para admin) -->
+        <div id="actionButtonsContainer" style="display: flex; justify-content: center; gap: 15px; margin: 10px 0; display: none;">
+            <div class="btn-add-indicador" id="btnAdicionarIndicador" title="Adicionar novo indicador">+</div>
+            <div class="btn-transferir" id="btnTransferir" title="Transferir entre saldos"><i class="fas fa-exchange-alt"></i></div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs" id="tabsContainer">
+            <div class="tab active" data-tab="fluxo" id="tabFluxoBtn">📋 Fluxo</div>
+            <div class="tab" data-tab="resumo" id="tabResumoBtn">📊 Resumo</div>
+            <div class="tab" data-tab="receitas" id="tabReceitasBtn">💰 Receitas</div>
+            <div class="tab" data-tab="transferencias" id="tabTransferenciasBtn" style="display: none;">🔄 Transferências</div>
+            <div class="tab" data-tab="lixeira" id="tabLixeiraBtn" style="display: none;">🗑️ Lixeira</div>
+            <div class="tab" data-tab="admin" id="adminTab" style="display: none;">⚙️ Admin</div>
+            <div class="tab" data-tab="permissoes" id="permissoesTab" style="display: none;">🔐 Permissões</div>
+            <div class="tab" data-tab="perfil" id="tabPerfilBtn">👤 Conta</div>
+            <div class="tab" data-tab="config" id="tabConfigBtn" style="display: none;">⚙️ Config</div>
+            <div class="tab" data-tab="programador" id="tabProgramadorBtn" style="display: none;">💻 Programador</div>
+            <div class="tab" data-tab="extrato" id="tabExtratoBtn">📄 Relatórios</div>
+        </div>
+
+        <!-- TAB FLUXO -->
+        <div id="tabFluxo" class="tab-content active">
+            <div class="card-form" id="formDespesaContainer" style="display: none;">
+                <h3 style="color: var(--azul); margin-bottom: 12px;"><i class="fas fa-plus-circle"></i> <span id="novaDespesaTitle">Nova despesa</span></h3>
+                <div class="flex-form">
+                    <div class="field">
+                        <label id="categoriaLabel">Categoria</label>
+                        <select id="catSelect">
+                            <option value="fixa">Fixas</option>
+                            <option value="variavel">Variáveis</option>
+                            <option value="extra">Extras</option>
+                        </select>
+                    </div>
+                    <div class="field"><label id="itemLabel">Item</label><select id="itemSelect"></select></div>
+                    <div class="field"><label id="descricaoLabel">Descrição</label><input type="text" id="descInput" placeholder="Ex: Conta de luz"></div>
+                    <div class="field"><label id="valorLabel">Valor (Kz)</label><input type="number" id="amountInput" step="0.01" required></div>
+                    <div class="field"><label id="dataLabel">Data</label><input type="date" id="dateInput" required></div>
+                    <div class="field">
+                        <label id="origemLabel">Debitar de</label>
+                        <div class="radio-group" id="origemContainer">
+                            <label><input type="radio" name="origem" value="despesas" checked> Despesas</label>
+                            <label><input type="radio" name="origem" value="receitas"> Receitas</label>
+                            <!-- Origens personalizadas serão inseridas aqui -->
+                        </div>
+                    </div>
+                    <button class="btn" id="saveDespesaBtn">✚ Pendente</button>
+                </div>
+            </div>
+            <h3 style="margin-bottom: 8px;"><span id="pendentesTitle">⏳ Pendentes</span></h3>
+            <div class="table-container" id="pendentesTable"></div>
+            <hr>
+            <h3 style="margin-bottom: 8px;"><span id="aprovadasTitle">✅ Aprovadas</span></h3>
+            <div class="table-container" id="aprovadasTable"></div>
+        </div>
+
+        <!-- TAB RESUMO -->
+        <div id="tabResumo" class="tab-content">
+            <div class="filter-bar">
+                <input type="text" id="searchInput" placeholder="🔍 Pesquisar...">
+                <select id="filterCategoria">
+                    <option value="">Todas</option>
+                    <option value="fixa">Fixas</option>
+                    <option value="variavel">Variáveis</option>
+                    <option value="extra">Extras</option>
+                </select>
+            </div>
+            <div class="card-form">
+                <h3><i class="fas fa-chart-simple"></i> <span id="totaisTitle">Totais (aprovadas)</span></h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 15px; margin: 10px 0;">
+                    <div><span style="color: var(--azul);">Mês:</span> <strong id="totalMes">0,00</strong> Kz</div>
+                    <div><span style="color: var(--azul);">6 meses:</span> <strong id="total6Meses">0,00</strong> Kz</div>
+                    <div><span style="color: var(--azul);">Ano:</span> <strong id="totalAnual">0,00</strong> Kz</div>
+                </div>
+                <h4><span id="registosFiltradosTitle">Registos filtrados</span></h4>
+                <div id="tabelaFiltrada" class="table-container"></div>
+            </div>
+            <div class="card-form">
+                <h4><i class="fas fa-history"></i> <span id="historicoReceitasTitle">Histórico de Receitas</span></h4>
+                <div class="table-container" id="tabelaReceitasResumo"></div>
+                <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-vermelho btn-sm" id="limparHistoricoReceitasBtn" style="display: none;"><i class="fas fa-trash"></i> <span id="limparHistoricoBtnText">Limpar histórico</span></button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <h4><i class="fas fa-chart-line"></i> <span id="graficoTitle">Despesas mensais</span></h4>
+                <canvas id="graficoMensal"></canvas>
+            </div>
+        </div>
+
+        <!-- TAB RECEITAS -->
+        <div id="tabReceitas" class="tab-content">
+            <div class="card-form" id="formReceitaContainer" style="display: none;">
+                <h3><i class="fas fa-plus-circle"></i> <span id="registrarReceitaTitle">Registrar Receita</span></h3>
+                <div class="flex-form">
+                    <div class="field"><label id="emolumentoLabel">Emolumento</label><select id="emolumentoSelect"></select></div>
+                    <div class="field"><label id="descAdicionalLabel">Descrição adicional</label><input type="text" id="receitaDesc" placeholder="opcional"></div>
+                    <div class="field"><label id="valorReceitaLabel">Valor (Kz)</label><input type="number" id="receitaValor" step="0.01" readonly></div>
+                    <div class="field"><label id="dataReceitaLabel">Data</label><input type="date" id="receitaData" required></div>
+                    <button class="btn" id="registrarReceitaBtn">Registar</button>
+                </div>
+            </div>
+            <h3 style="margin-bottom: 8px;"><span id="historicoReceitasTabTitle">📋 Histórico de Receitas</span></h3>
+            <div class="table-container" id="tabelaReceitas"></div>
+            <h3 style="margin-bottom: 8px;"><span id="tabelaEmolumentosTitle">📋 Tabela de Emolumentos</span></h3>
+            <div class="table-container" id="tabelaEmolumentos"></div>
+        </div>
+
+        <!-- TAB TRANSFERÊNCIAS -->
+        <div id="tabTransferencias" class="tab-content">
+            <div class="card-form">
+                <h3><i class="fas fa-exchange-alt"></i> <span id="historicoTransferenciasTitle">Histórico de Transferências</span></h3>
+                <div class="table-container" id="tabelaTransferencias"></div>
+                <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn btn-amarelo btn-sm" id="gerarPDFTransferenciasBtn"><i class="fas fa-download"></i> <span id="baixarExtratoTransferenciasText">Baixar extrato PDF</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB LIXEIRA -->
+        <div id="tabLixeira" class="tab-content">
+            <div class="card-form">
+                <h3><i class="fas fa-trash-restore"></i> <span id="lixeiraTitle">Itens na Lixeira</span></h3>
+                <div style="margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-vermelho btn-sm" id="esvaziarLixeiraBtn"><i class="fas fa-trash-alt"></i> <span id="esvaziarLixeiraText">Esvaziar lixeira</span></button>
+                </div>
+                <div id="lixeiraDespesasContainer">
+                    <h4><span id="despesasLixeiraTitle">Despesas</span></h4>
+                    <div class="table-container" id="lixeiraDespesasTable"></div>
+                </div>
+                <div id="lixeiraReceitasContainer">
+                    <h4><span id="receitasLixeiraTitle">Receitas</span></h4>
+                    <div class="table-container" id="lixeiraReceitasTable"></div>
+                </div>
+                <div id="lixeiraTransferenciasContainer">
+                    <h4><span id="transferenciasLixeiraTitle">Transferências</span></h4>
+                    <div class="table-container" id="lixeiraTransferenciasTable"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB ADMIN -->
+        <div id="tabAdmin" class="tab-content">
+            <div class="card-form">
+                <h3>👥 Utilizadores</h3>
+                <div id="userList"></div>
+                <button class="btn btn-amarelo" id="addUserBtn" style="margin-top: 12px;"><i class="fas fa-user-plus"></i> Novo Utilizador</button>
+            </div>
+        </div>
+
+        <!-- TAB PERMISSÕES -->
+        <div id="tabPermissoes" class="tab-content">
+            <div class="card-form">
+                <h3><i class="fas fa-lock"></i> <span id="permissoesTitle">Permissões por Função</span></h3>
+                <p><span id="permissoesDesc">Configure quais abas e ações cada tipo de utilizador pode acessar.</span></p>
+                <div id="permissoesContainer"></div>
+                <button class="btn" id="salvarPermissoesBtn"><i class="fas fa-save"></i> <span id="salvarPermissoesText">Salvar permissões</span></button>
+            </div>
+        </div>
+
+        <!-- TAB PERFIL -->
+        <div id="tabPerfil" class="tab-content">
+            <div class="card-form">
+                <h3><i class="fas fa-key"></i> <span id="alterarSenhaTitle">Alterar palavra-passe</span></h3>
+                <p style="margin-bottom: 12px;" id="senhaExpiraText">A sua senha expira a cada 3 meses (exceto admin).</p>
+                <div style="max-width: 350px;">
+                    <div class="field"><label id="senhaAtualLabel">Senha atual</label><input type="password" id="oldPwd"></div>
+                    <div class="field"><label id="novaSenhaLabel">Nova senha</label><input type="password" id="newPwd"></div>
+                    <div class="field"><label id="confirmarSenhaLabel">Confirmar</label><input type="password" id="confirmPwd"></div>
+                    <button class="btn" id="changePwdBtn" style="margin-top: 12px;"><span id="atualizarSenhaBtnText">Actualizar</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB CONFIG -->
+        <div id="tabConfig" class="tab-content">
+            <div class="card-form">
+                <h3>⚙️ Indicadores Personalizados</h3>
+                <p style="margin-bottom: 12px;">Crie novos pares de Saldo e Gasto. Eles aparecerão no dashboard e poderão ser usados como origem de despesas.</p>
+                <div id="indicadoresPersonalizadosList"></div>
+                <button class="btn btn-amarelo btn-sm" id="addIndicadorConfigBtn"><i class="fas fa-plus"></i> Adicionar Par (Saldo + Gasto)</button>
+            </div>
+            <div class="card-form">
+                <h3>⚙️ Itens de Despesas Fixas</h3>
+                <p style="margin-bottom: 12px;">Adicione, edite ou remova itens (com valor padrão).</p>
+                <div id="configDespesasFixas"></div>
+                <div class="config-buttons">
+                    <button class="btn btn-amarelo btn-sm" id="addDespesaFixaBtn"><i class="fas fa-plus"></i> Adicionar Item Fixo</button>
+                    <button class="btn btn-amarelo" id="salvarConfigDespesasFixas">Guardar Fixas</button>
+                </div>
+            </div>
+            <div class="card-form">
+                <h3>⚙️ Itens de Despesas Variáveis</h3>
+                <p style="margin-bottom: 12px;">Adicione, edite ou remova itens (valor opcional).</p>
+                <div id="configDespesasVariaveis"></div>
+                <div class="config-buttons">
+                    <button class="btn btn-amarelo btn-sm" id="addDespesaVariavelBtn"><i class="fas fa-plus"></i> Adicionar Item Variável</button>
+                    <button class="btn btn-amarelo" id="salvarConfigDespesasVariaveis">Guardar Variáveis</button>
+                </div>
+            </div>
+            <div class="card-form">
+                <h3>⚙️ Itens de Despesas Extras</h3>
+                <p style="margin-bottom: 12px;">Adicione, edite ou remova itens (valor opcional).</p>
+                <div id="configDespesasExtras"></div>
+                <div class="config-buttons">
+                    <button class="btn btn-amarelo btn-sm" id="addDespesaExtraBtn"><i class="fas fa-plus"></i> Adicionar Item Extra</button>
+                    <button class="btn btn-amarelo" id="salvarConfigDespesasExtras">Guardar Extras</button>
+                </div>
+            </div>
+            <div class="card-form">
+                <h3>📋 Tabela de Emolumentos</h3>
+                <p style="margin-bottom: 12px;">Lista oficial da OAA (edite os valores e descrições).</p>
+                <div id="emolumentosList"></div>
+                <button class="btn btn-amarelo btn-sm" id="addEmolumentoBtn"><i class="fas fa-plus"></i> Adicionar Emolumento</button>
+            </div>
+        </div>
+
+        <!-- TAB PROGRAMADOR -->
+        <div id="tabProgramador" class="tab-content">
+            <div class="card-form">
+                <h3><i class="fas fa-code"></i> <span id="programadorTitle">Configurações do Sistema</span></h3>
+                <p style="margin-bottom: 12px; color: var(--vermelho);" id="programadorWarning"></p>
+                <div id="textosEditaveisContainer">
+                    <!-- Aqui serão gerados campos para cada texto editável -->
+                </div>
+                <button class="btn" id="salvarTextosBtn"><i class="fas fa-save"></i> <span id="salvarTextosProgramador">Salvar textos</span></button>
+            </div>
+        </div>
+
+        <!-- TAB EXTRATO -->
+        <div id="tabExtrato" class="tab-content">
+            <div class="card-form">
+                <h3><i class="fas fa-file-pdf"></i> <span id="gerarRelatorioTitle">Gerar Relatório</span></h3>
+                <div class="flex-form">
+                    <div class="field"><label id="inicioLabel">Início</label><input type="month" id="extratoMesInicio"></div>
+                    <div class="field"><label id="fimLabel">Fim</label><input type="month" id="extratoMesFim"></div>
+                    <div class="field"><label id="tipoLabel">Tipo</label>
+                        <select id="extratoTipo">
+                            <option value="ambos">Ambos</option>
+                            <option value="despesas">Despesas</option>
+                            <option value="receitas">Receitas</option>
+                        </select>
+                    </div>
+                    <button class="btn" id="gerarPDFBtn"><i class="fas fa-download"></i> PDF</button>
+                    <button class="btn btn-amarelo" id="imprimirRelatorioBtn"><i class="fas fa-print"></i> Imprimir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE CONFIRMAÇÃO PROFISSIONAL -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-content confirm-modal-content">
+        <div class="confirm-icon"><i class="fas fa-question-circle"></i></div>
+        <h3 id="modalMessage">Deseja continuar?</h3>
+        <div class="confirm-buttons">
+            <button class="btn" id="modalConfirmBtn">Sim</button>
+            <button class="btn btn-amarelo" id="modalCancelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE EDIÇÃO DE DESPESA -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-edit"></i> <span id="editarDespesaTitle">Editar despesa</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field"><label id="editCatLabel">Categoria</label><select id="editCat"></select></div>
+            <div class="field"><label id="editItemLabel">Item</label><select id="editItem"></select></div>
+            <div class="field"><label id="editDescLabel">Descrição</label><input type="text" id="editDesc"></div>
+            <div class="field"><label id="editAmountLabel">Valor</label><input type="number" id="editAmount" step="0.01"></div>
+            <div class="field"><label id="editDateLabel">Data</label><input type="date" id="editDate"></div>
+            <div class="field">
+                <label id="editOrigemLabel">Debitar de</label>
+                <div class="radio-group" id="editOrigemContainer">
+                    <label><input type="radio" name="editOrigem" value="despesas"> Despesas</label>
+                    <label><input type="radio" name="editOrigem" value="receitas"> Receitas</label>
+                    <!-- Origens personalizadas serão inseridas aqui -->
+                </div>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="editSaveBtn">Guardar</button>
+            <button class="btn btn-amarelo" id="editCancelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE AJUSTE DE SALDOS E GASTOS -->
+<div class="modal-overlay" id="saldoModal">
+    <div class="modal-content">
+        <h3 id="saldoModalTitle"><i class="fas fa-coins"></i> Ajustar</h3>
+        <div style="margin: 12px 0;">
+            <div class="radio-group">
+                <label><input type="radio" name="tipoAjuste" value="incrementar" checked> <span id="adicionarSubtrairText">Adicionar/Subtrair</span></label>
+                <label><input type="radio" name="tipoAjuste" value="definir"> <span id="definirNovoValorText">Definir novo valor</span></label>
+            </div>
+            <div class="field">
+                <label id="valorAjusteLabel">Valor (Kz) [use negativo para subtrair]</label>
+                <input type="number" id="saldoAjuste" step="0.01" placeholder="Ex: 1000 ou -500">
+            </div>
+            <div class="field"><label id="descAjusteLabel">Descrição</label><input type="text" id="saldoDesc" placeholder="Motivo do ajuste"></div>
+            <button class="btn btn-vermelho btn-sm" id="zerarSaldoBtn" style="margin-top: 12px; width: 100%;"><i class="fas fa-undo"></i> <span id="zerarText">Zerar (0000)</span></button>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="saldoConfirmBtn">Aplicar</button>
+            <button class="btn btn-amarelo" id="saldoCancelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE TRANSFERÊNCIA ENTRE SALDOS -->
+<div class="modal-overlay" id="transferModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-exchange-alt"></i> <span id="transferirTitle">Transferir entre saldos</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="tipoTransferenciaLabel">Tipo de transferência</label>
+                <select id="transferTipo">
+                    <option value="despesasParaReceitas">Despesas → Receitas</option>
+                    <option value="receitasParaDespesas">Receitas → Despesas</option>
+                </select>
+            </div>
+            <div class="field">
+                <label id="valorTransferenciaLabel">Valor (Kz)</label>
+                <input type="number" id="transferValor" step="0.01" placeholder="0,00">
+            </div>
+            <div class="field">
+                <label id="descTransferenciaLabel">Descrição (opcional)</label>
+                <input type="text" id="transferDesc" placeholder="Motivo da transferência">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="transferConfirmBtn">Transferir</button>
+            <button class="btn btn-amarelo" id="transferCancelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE EDIÇÃO/CRIAÇÃO DE UTILIZADOR (COM CAMPO SENHA) -->
+<div class="modal-overlay" id="userEditModal">
+    <div class="modal-content">
+        <h3 id="userModalTitle"><i class="fas fa-user-edit"></i> <span id="editarUtilizadorTitle">Editar Utilizador</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="nomeLabel">Nome</label>
+                <input type="text" id="editUserName" placeholder="Nome completo">
+            </div>
+            <div class="field">
+                <label id="emailLabel">Email</label>
+                <input type="email" id="editUserEmail" placeholder="email@exemplo.com">
+            </div>
+            <div class="field">
+                <label id="funcaoLabel">Função</label>
+                <select id="editUserRole">
+                    <option value="admin">Administrador</option>
+                    <option value="delegado">Delegado</option>
+                    <option value="assistente">Assistente</option>
+                    <option value="auxiliar">Auxiliar</option>
+                </select>
+                <button class="btn btn-sm btn-outline" id="addNewRoleBtn" style="margin-top: 5px;"><i class="fas fa-plus"></i> <span id="adicionarFuncaoText">Adicionar nova função</span></button>
+            </div>
+            <div class="field">
+                <label id="senhaLabel">Senha</label>
+                <input type="password" id="editUserPassword" placeholder="Deixar em branco para manter atual (se edição)">
+            </div>
+            <div class="field">
+                <label id="cargoLabel">Cargo</label>
+                <input type="text" id="editUserCargo" placeholder="Ex: Secretário">
+            </div>
+            <div class="field">
+                <label id="salarioLabel">Salário (Kz)</label>
+                <input type="number" id="editUserSalario" step="0.01" placeholder="0,00">
+            </div>
+            <div class="field">
+                <label style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="editUserActive" checked> <span id="activoText">Activo</span>
+                </label>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="editUserSaveBtn">Guardar</button>
+            <button class="btn btn-amarelo" id="editUserCancelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA ADICIONAR INDICADOR PERSONALIZADO -->
+<div class="modal-overlay" id="addIndicadorModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-cube"></i> <span id="novoIndicadorTitle">Novo Indicador Personalizado</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="nomeIndicadorLabel">Nome do indicador</label>
+                <input type="text" id="novoIndicadorNome" placeholder="Ex: Abonações">
+            </div>
+            <div class="field">
+                <label id="valorInicialSaldoLabel">Valor inicial do saldo (Kz)</label>
+                <input type="number" id="novoIndicadorValorSaldo" step="0.01" value="0">
+            </div>
+            <div class="field">
+                <label id="valorInicialGastoLabel">Valor inicial dos gastos (Kz)</label>
+                <input type="number" id="novoIndicadorValorGasto" step="0.01" value="0">
+            </div>
+            <p style="font-size:0.9rem; color:var(--azul);" id="indicadorDescText">Serão criados dois cards: <strong>Saldo de [nome]</strong> e <strong>Gastos de [nome]</strong>. O saldo poderá ser usado como origem em despesas.</p>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="confirmAddIndicadorBtn">Criar</button>
+            <button class="btn btn-amarelo" id="cancelAddIndicadorBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA ADICIONAR ITEM DE DESPESA FIXA -->
+<div class="modal-overlay" id="addItemFixoModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-plus-circle"></i> <span id="novoItemFixoTitle">Novo Item de Despesa Fixa</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="nomeItemFixoLabel">Nome do item</label>
+                <input type="text" id="novoItemFixoNome" placeholder="Ex: Internet">
+            </div>
+            <div class="field">
+                <label id="valorPadraoFixoLabel">Valor padrão (Kz)</label>
+                <input type="number" id="novoItemFixoValor" step="0.01" value="0">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="confirmAddItemFixoBtn">Adicionar</button>
+            <button class="btn btn-amarelo" id="cancelAddItemFixoBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA ADICIONAR ITEM DE DESPESA VARIÁVEL -->
+<div class="modal-overlay" id="addItemVariavelModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-plus-circle"></i> <span id="novoItemVariavelTitle">Novo Item de Despesa Variável</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="nomeItemVariavelLabel">Nome do item</label>
+                <input type="text" id="novoItemVariavelNome" placeholder="Ex: Material de escritório">
+            </div>
+            <div class="field">
+                <label id="valorPadraoVariavelLabel">Valor padrão (Kz)</label>
+                <input type="number" id="novoItemVariavelValor" step="0.01" value="0">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="confirmAddItemVariavelBtn">Adicionar</button>
+            <button class="btn btn-amarelo" id="cancelAddItemVariavelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA ADICIONAR ITEM DE DESPESA EXTRA -->
+<div class="modal-overlay" id="addItemExtraModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-plus-circle"></i> <span id="novoItemExtraTitle">Novo Item de Despesa Extra</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="nomeItemExtraLabel">Nome do item</label>
+                <input type="text" id="novoItemExtraNome" placeholder="Ex: Evento especial">
+            </div>
+            <div class="field">
+                <label id="valorPadraoExtraLabel">Valor padrão (Kz)</label>
+                <input type="number" id="novoItemExtraValor" step="0.01" value="0">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="confirmAddItemExtraBtn">Adicionar</button>
+            <button class="btn btn-amarelo" id="cancelAddItemExtraBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE EDIÇÃO/CRIAÇÃO DE EMOLUMENTO -->
+<div class="modal-overlay" id="emolumentoEditModal">
+    <div class="modal-content">
+        <h3 id="emolumentoModalTitle"><i class="fas fa-edit"></i> <span id="editarEmolumentoTitle">Editar Emolumento</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="codigoEmolumentoLabel">Código</label>
+                <input type="text" id="emolumentoCodigo" maxlength="3" placeholder="Ex: 020">
+            </div>
+            <div class="field">
+                <label id="descricaoEmolumentoLabel">Descrição</label>
+                <input type="text" id="emolumentoDescricao" placeholder="Descrição do emolumento">
+            </div>
+            <div class="field">
+                <label id="valorEmolumentoLabel">Valor (Kz)</label>
+                <input type="number" id="emolumentoValor" step="0.01" placeholder="0,00">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="emolumentoConfirmBtn">Guardar</button>
+            <button class="btn btn-amarelo" id="emolumentoCancelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PARA ADICIONAR NOVA FUNÇÃO -->
+<div class="modal-overlay" id="addRoleModal">
+    <div class="modal-content">
+        <h3><i class="fas fa-user-tag"></i> <span id="novaFuncaoTitle">Adicionar Nova Função</span></h3>
+        <div style="margin: 12px 0;">
+            <div class="field">
+                <label id="nomeFuncaoLabel">Nome da função</label>
+                <input type="text" id="novaFuncaoNome" placeholder="Ex: Supervisor">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="btn" id="addRoleConfirmBtn">Adicionar</button>
+            <button class="btn btn-amarelo" id="addRoleCancelBtn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ==================== STORAGE KEYS ====================
+        const STORAGE_USERS = 'oaa_users';
+        const STORAGE_EXPENSES = 'oaa_expenses';
+        const STORAGE_RECEITAS = 'oaa_receitas';
+        const STORAGE_TRANSFERENCIAS = 'oaa_transferencias';
+        const STORAGE_LIXEIRA = 'oaa_lixeira';
+        const STORAGE_BALANCE = 'oaa_balance';
+        const STORAGE_BALANCE_RECEITAS = 'oaa_balance_receitas';
+        const STORAGE_GASTOS_DESPESAS = 'oaa_gastos_despesas';
+        const STORAGE_GASTOS_RECEITAS = 'oaa_gastos_receitas';
+        const STORAGE_QUOTAS_RECEBIDAS = 'oaa_quotas_recebidas';
+        const STORAGE_INDICADORES = 'oaa_indicadores';
+        const STORAGE_CURRENT_USER = 'oaa_current';
+        const STORAGE_PWD_EXPIRY = 'oaa_pwd_expiry';
+        const STORAGE_CONFIG_DESPESAS_FIXAS = 'oaa_config_despesas_fixas';
+        const STORAGE_CONFIG_DESPESAS_VARIAVEIS = 'oaa_config_despesas_variaveis';
+        const STORAGE_CONFIG_DESPESAS_EXTRAS = 'oaa_config_despesas_extras';
+        const STORAGE_CONFIG_EMOLUMENTOS = 'oaa_config_emolumentos';
+        const STORAGE_ROLE_PERMISSIONS = 'oaa_role_permissions';
+        const STORAGE_CUSTOM_TEXTS = 'oaa_custom_texts';
+
+        // ==================== FUNÇÃO AUXILIAR PARA LER NÚMEROS DO STORAGE ====================
+        function getNumberFromStorage(key, defaultValue) {
+            const value = localStorage.getItem(key);
+            if (value === null) return defaultValue;
+            const num = parseFloat(value);
+            return isNaN(num) ? defaultValue : num;
+        }
+
+        // ==================== DADOS INICIAIS ====================
+        let users = JSON.parse(localStorage.getItem(STORAGE_USERS)) || [
+            { id: 1, name: 'Eng. Castro Adriano', email: 'castroadriano@gmail.com', password: 'admin.oaa2026', role: 'admin', active: true, cargo: 'Administrador', salario: 250000 },
+            { id: 2, name: 'Dr. Marcos Gabriel', email: 'marcosgabriel@gmail.com', password: 'delegado.oaa2026', role: 'delegado', active: true, cargo: 'Delegado', salario: 0 },
+            { id: 3, name: 'Rita Gaspar', email: 'ritagaspar@gmail.com', password: 'assistente.oaa2026', role: 'assistente', active: true, cargo: 'Assistente', salario: 120000 }
+        ];
+
+        let expenses = JSON.parse(localStorage.getItem(STORAGE_EXPENSES)) || [
+            { id: 1, category: 'fixa', item: 'Água', description: 'Conta mensal', amount: 25000, date: '2025-03-10', status: 'approved', origem: 'despesas' },
+            { id: 2, category: 'fixa', item: 'Energia', description: 'Prédio', amount: 47000, date: '2025-03-05', status: 'approved', origem: 'despesas' },
+            { id: 3, category: 'variavel', item: 'Papel A4', description: 'Resma', amount: 12000, date: '2025-03-12', status: 'pending', origem: 'despesas' },
+            { id: 4, category: 'extra', item: 'Saúde', description: 'Farmácia', amount: 8500, date: '2025-02-18', status: 'approved', origem: 'despesas' },
+            { id: 5, category: 'extra', item: 'Cerimônia', description: 'Evento', amount: 50000, date: '2025-03-15', status: 'approved', origem: 'receitas' }
+        ];
+
+        let receitas = JSON.parse(localStorage.getItem(STORAGE_RECEITAS)) || [];
+        let transferencias = JSON.parse(localStorage.getItem(STORAGE_TRANSFERENCIAS)) || [];
+        let lixeira = JSON.parse(localStorage.getItem(STORAGE_LIXEIRA)) || { despesas: [], receitas: [], transferencias: [] };
+
+        let balanceDespesas = getNumberFromStorage(STORAGE_BALANCE, 2000000);
+        let balanceReceitas = getNumberFromStorage(STORAGE_BALANCE_RECEITAS, 0);
+        let gastosManuaisDespesas = getNumberFromStorage(STORAGE_GASTOS_DESPESAS, 0);
+        let gastosManuaisReceitas = getNumberFromStorage(STORAGE_GASTOS_RECEITAS, 0);
+        let quotasManuais = getNumberFromStorage(STORAGE_QUOTAS_RECEBIDAS, 0);
+
+        let indicadores = JSON.parse(localStorage.getItem(STORAGE_INDICADORES)) || [];
+
+        let configDespesasFixas = JSON.parse(localStorage.getItem(STORAGE_CONFIG_DESPESAS_FIXAS)) || {
+            'Água': 25000,
+            'Energia': 47000,
+            'Pacote de dados': 15000,
+            'Salário Secretário': 180000,
+            'Salário Auxiliar': 70000,
+            'Tinteiros': 20000,
+            'Material Limpeza': 12000,
+            'Material Informática': 25000,
+            'Papel A4': 8000,
+            'Taxis': 5000
+        };
+
+        let configDespesasVariaveis = JSON.parse(localStorage.getItem(STORAGE_CONFIG_DESPESAS_VARIAVEIS)) || {
+            'Tinteiros': 20000,
+            'Material Limpeza': 12000,
+            'Material Informática': 25000,
+            'Papel A4': 8000,
+            'Taxis': 5000,
+            'Outros Variáveis': 0
+        };
+
+        let configDespesasExtras = JSON.parse(localStorage.getItem(STORAGE_CONFIG_DESPESAS_EXTRAS)) || {
+            'Atividade OAA': 0,
+            'Saúde': 0,
+            'Outros Extras': 0
+        };
+
+        let configEmolumentos = JSON.parse(localStorage.getItem(STORAGE_CONFIG_EMOLUMENTOS)) || [
+            { codigo: '001', descricao: 'ABERTURA DE MATRÍCULAS', valor: 99968.00 },
+            { codigo: '002', descricao: 'ALTERAÇÃO E/OU AVERBAMENTO', valor: 50072.00 },
+            { codigo: '003', descricao: 'CERTIDÃO', valor: 50072.00 },
+            { codigo: '004', descricao: 'CERTIFICADO ADMISSIBILIDADE', valor: 19976.00 },
+            { codigo: '005', descricao: 'VENDA - CERTIFICAÇÃO', valor: 1000.00 },
+            { codigo: '006', descricao: 'INSCRIÇÃO DE ADVOGADO', valor: 21060.00 },
+            { codigo: '007', descricao: 'INSCRIÇÃO DE ADVOGADO ESTAGIÁRIO', valor: 6700.00 },
+            { codigo: '008', descricao: 'LEVANTAMENTO SUSPENSÃO', valor: 10000.00 },
+            { codigo: '009', descricao: 'MUDANÇA PATRONO', valor: 1500.00 },
+            { codigo: '010', descricao: 'MULTA ELEIÇÕES', valor: 30000.00 },
+            { codigo: '011', descricao: 'NOTA VERBAL', valor: 1500.00 },
+            { codigo: '012', descricao: 'QUOTAS DE ADVOGADO', valor: 10000.00 },
+            { codigo: '013', descricao: 'QUOTAS DE ADVOGADO ESTAGIÁRIO', valor: 1250.00 },
+            { codigo: '014', descricao: 'RENOVAÇÃO CARTÃO ADVOGADO', valor: 10000.00 },
+            { codigo: '015', descricao: 'RENOVAÇÃO CARTÃO ESTAGIÁRIO', valor: 6000.00 },
+            { codigo: '016', descricao: 'EXTRAVIO DE CARTÃO', valor: 15500.00 },
+            { codigo: '017', descricao: 'VENDA DE REVISTAS', valor: 1500.00 },
+            { codigo: '018', descricao: 'CERIMONIA ENTREGA CÉDULAS (ADV)', valor: 30000.00 },
+            { codigo: '019', descricao: 'CERIMONIA ENTREGA CÉDULAS (EST)', valor: 15000.00 }
+        ];
+
+        // Permissões padrão por função
+        let rolePermissions = JSON.parse(localStorage.getItem(STORAGE_ROLE_PERMISSIONS)) || {
+            admin: {
+                tabs: ['fluxo', 'resumo', 'receitas', 'transferencias', 'lixeira', 'admin', 'permissoes', 'perfil', 'config', 'programador', 'extrato'],
+                canEditSaldo: true,
+                canApprove: true,
+                canDelete: true,
+                canTransfer: true,
+                canManageUsers: true,
+                canManageIndicadores: true,
+                canManageConfig: true,
+                canManageEmolumentos: true
+            },
+            delegado: {
+                tabs: ['fluxo', 'resumo', 'receitas', 'transferencias', 'perfil', 'extrato'],
+                canEditSaldo: false,
+                canApprove: true,
+                canDelete: false,
+                canTransfer: false,
+                canManageUsers: false,
+                canManageIndicadores: false,
+                canManageConfig: false,
+                canManageEmolumentos: false
+            },
+            assistente: {
+                tabs: ['fluxo', 'resumo', 'receitas', 'perfil', 'extrato'],
+                canEditSaldo: false,
+                canApprove: false,
+                canDelete: false,
+                canTransfer: false,
+                canManageUsers: false,
+                canManageIndicadores: false,
+                canManageConfig: false,
+                canManageEmolumentos: false
+            },
+            auxiliar: {
+                tabs: ['fluxo', 'resumo', 'perfil', 'extrato'],
+                canEditSaldo: false,
+                canApprove: false,
+                canDelete: false,
+                canTransfer: false,
+                canManageUsers: false,
+                canManageIndicadores: false,
+                canManageConfig: false,
+                canManageEmolumentos: false
+            }
+        };
+
+        // Textos personalizáveis
+        let customTexts = JSON.parse(localStorage.getItem(STORAGE_CUSTOM_TEXTS)) || {
+            mainTitle: 'OAA MALANJE',
+            cardDespesasLabel: 'Saldo de Despesas',
+            cardReceitasLabel: 'Saldo de Receitas',
+            cardGastosDespesasLabel: 'Gastos (Despesas)',
+            cardGastosReceitasLabel: 'Gastos (Receitas)',
+            cardQuotasLabel: 'Quotas Recebidas',
+            novaDespesaTitle: 'Nova despesa',
+            pendentesTitle: '⏳ Pendentes',
+            aprovadasTitle: '✅ Aprovadas',
+            totaisTitle: 'Totais (aprovadas)',
+            registosFiltradosTitle: 'Registos filtrados',
+            historicoReceitasTitle: 'Histórico de Receitas',
+            limparHistoricoBtnText: 'Limpar histórico',
+            graficoTitle: 'Despesas mensais',
+            registrarReceitaTitle: 'Registrar Receita',
+            historicoReceitasTabTitle: '📋 Histórico de Receitas',
+            tabelaEmolumentosTitle: '📋 Tabela de Emolumentos',
+            historicoTransferenciasTitle: 'Histórico de Transferências',
+            baixarExtratoTransferenciasText: 'Baixar extrato PDF',
+            lixeiraTitle: 'Itens na Lixeira',
+            esvaziarLixeiraText: 'Esvaziar lixeira',
+            permissoesTitle: 'Permissões por Função',
+            permissoesDesc: 'Configure quais abas e ações cada tipo de utilizador pode acessar.',
+            salvarPermissoesText: 'Salvar permissões',
+            alterarSenhaTitle: 'Alterar palavra-passe',
+            senhaExpiraText: 'A sua senha expira a cada 3 meses (exceto admin).',
+            atualizarSenhaBtnText: 'Actualizar',
+            programadorTitle: 'Configurações do Sistema',
+            programadorWarning: '',
+            salvarTextosProgramador: 'Salvar textos',
+            gerarRelatorioTitle: 'Gerar Relatório'
+        };
+
+        let pwdExpiry = JSON.parse(localStorage.getItem(STORAGE_PWD_EXPIRY)) || {};
+        users.forEach(u => { if (!pwdExpiry[u.email]) pwdExpiry[u.email] = Date.now(); });
+
+        function saveAll() {
+            localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+            localStorage.setItem(STORAGE_EXPENSES, JSON.stringify(expenses));
+            localStorage.setItem(STORAGE_RECEITAS, JSON.stringify(receitas));
+            localStorage.setItem(STORAGE_TRANSFERENCIAS, JSON.stringify(transferencias));
+            localStorage.setItem(STORAGE_LIXEIRA, JSON.stringify(lixeira));
+            localStorage.setItem(STORAGE_BALANCE, balanceDespesas);
+            localStorage.setItem(STORAGE_BALANCE_RECEITAS, balanceReceitas);
+            localStorage.setItem(STORAGE_GASTOS_DESPESAS, gastosManuaisDespesas);
+            localStorage.setItem(STORAGE_GASTOS_RECEITAS, gastosManuaisReceitas);
+            localStorage.setItem(STORAGE_QUOTAS_RECEBIDAS, quotasManuais);
+            localStorage.setItem(STORAGE_INDICADORES, JSON.stringify(indicadores));
+            localStorage.setItem(STORAGE_PWD_EXPIRY, JSON.stringify(pwdExpiry));
+            localStorage.setItem(STORAGE_CONFIG_DESPESAS_FIXAS, JSON.stringify(configDespesasFixas));
+            localStorage.setItem(STORAGE_CONFIG_DESPESAS_VARIAVEIS, JSON.stringify(configDespesasVariaveis));
+            localStorage.setItem(STORAGE_CONFIG_DESPESAS_EXTRAS, JSON.stringify(configDespesasExtras));
+            localStorage.setItem(STORAGE_CONFIG_EMOLUMENTOS, JSON.stringify(configEmolumentos));
+            localStorage.setItem(STORAGE_ROLE_PERMISSIONS, JSON.stringify(rolePermissions));
+            localStorage.setItem(STORAGE_CUSTOM_TEXTS, JSON.stringify(customTexts));
+        }
+
+        function formatCurrency(value) {
+            return value.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' Kz';
+        }
+
+        function getItensPorCategoria(cat) {
+            if (cat === 'fixa') return Object.keys(configDespesasFixas);
+            if (cat === 'variavel') return Object.keys(configDespesasVariaveis);
+            if (cat === 'extra') return Object.keys(configDespesasExtras);
+            return [];
+        }
+
+        function getValorPadraoItem(cat, item) {
+            if (cat === 'fixa') return configDespesasFixas[item] || 0;
+            if (cat === 'variavel') return configDespesasVariaveis[item] || 0;
+            if (cat === 'extra') return configDespesasExtras[item] || 0;
+            return 0;
+        }
+
+        // Aplica textos personalizados
+        function applyCustomTexts() {
+            for (let key in customTexts) {
+                let element = document.getElementById(key);
+                if (element) {
+                    if (element.tagName === 'SPAN' || element.tagName === 'H3' || element.tagName === 'H4' || element.tagName === 'P' || element.tagName === 'LABEL') {
+                        element.innerText = customTexts[key];
+                    } else if (element.placeholder !== undefined) {
+                        element.placeholder = customTexts[key];
+                    }
+                }
+            }
+            const progWarning = document.getElementById('programadorWarning');
+            if (progWarning) progWarning.innerText = customTexts.programadorWarning || '';
+        }
+
+        let currentUser = null;
+        const storedEmail = localStorage.getItem(STORAGE_CURRENT_USER);
+        if (storedEmail) currentUser = users.find(u => u.email === storedEmail && u.active);
+
+        // Elementos DOM (apenas os principais, muitos já existem)
+        const loginScreen = document.getElementById('loginScreen');
+        const dashboard = document.getElementById('dashboard');
+        const displayName = document.getElementById('displayName');
+        const displayRole = document.getElementById('displayRole');
+        const adminTab = document.getElementById('adminTab');
+        const permissoesTab = document.getElementById('permissoesTab');
+        const tabProgramadorBtn = document.getElementById('tabProgramadorBtn');
+        const tabTransferenciasBtn = document.getElementById('tabTransferenciasBtn');
+        const tabLixeiraBtn = document.getElementById('tabLixeiraBtn');
+        const formDespesaContainer = document.getElementById('formDespesaContainer');
+        const formReceitaContainer = document.getElementById('formReceitaContainer');
+        const saldoDespesasSpan = document.getElementById('saldoDespesas');
+        const saldoReceitasSpan = document.getElementById('saldoReceitas');
+        const gastosDespesasSpan = document.getElementById('gastosDespesas');
+        const gastosReceitasSpan = document.getElementById('gastosReceitas');
+        const quotasRecebidasSpan = document.getElementById('quotasRecebidas');
+        const editarSaldoDespesasBtn = document.getElementById('editarSaldoDespesasBtn');
+        const editarSaldoReceitasBtn = document.getElementById('editarSaldoReceitasBtn');
+        const editarGastosDespesasBtn = document.getElementById('editarGastosDespesasBtn');
+        const editarGastosReceitasBtn = document.getElementById('editarGastosReceitasBtn');
+        const editarQuotasRecebidasBtn = document.getElementById('editarQuotasRecebidasBtn');
+        const pwdWarningBanner = document.getElementById('pwdWarningBanner');
+        const changePwdLink = document.getElementById('changePwdLink');
+        const saldosContainer = document.getElementById('saldosContainer');
+        const actionButtonsContainer = document.getElementById('actionButtonsContainer');
+        const btnAdicionarIndicador = document.getElementById('btnAdicionarIndicador');
+        const btnTransferir = document.getElementById('btnTransferir');
+        const indicadoresPersonalizadosList = document.getElementById('indicadoresPersonalizadosList');
+        const addIndicadorConfigBtn = document.getElementById('addIndicadorConfigBtn');
+        const transferModal = document.getElementById('transferModal');
+        const transferTipo = document.getElementById('transferTipo');
+        const transferValor = document.getElementById('transferValor');
+        const transferDesc = document.getElementById('transferDesc');
+        const transferConfirmBtn = document.getElementById('transferConfirmBtn');
+        const transferCancelBtn = document.getElementById('transferCancelBtn');
+        const emolumentosList = document.getElementById('emolumentosList');
+        const addEmolumentoBtn = document.getElementById('addEmolumentoBtn');
+        const emolumentoEditModal = document.getElementById('emolumentoEditModal');
+        const emolumentoCodigo = document.getElementById('emolumentoCodigo');
+        const emolumentoDescricao = document.getElementById('emolumentoDescricao');
+        const emolumentoValor = document.getElementById('emolumentoValor');
+        const emolumentoConfirmBtn = document.getElementById('emolumentoConfirmBtn');
+        const emolumentoCancelBtn = document.getElementById('emolumentoCancelBtn');
+        const emolumentoModalTitle = document.getElementById('emolumentoModalTitle');
+        const addIndicadorModal = document.getElementById('addIndicadorModal');
+        const novoIndicadorNome = document.getElementById('novoIndicadorNome');
+        const novoIndicadorValorSaldo = document.getElementById('novoIndicadorValorSaldo');
+        const novoIndicadorValorGasto = document.getElementById('novoIndicadorValorGasto');
+        const confirmAddIndicadorBtn = document.getElementById('confirmAddIndicadorBtn');
+        const cancelAddIndicadorBtn = document.getElementById('cancelAddIndicadorBtn');
+        const addItemFixoModal = document.getElementById('addItemFixoModal');
+        const novoItemFixoNome = document.getElementById('novoItemFixoNome');
+        const novoItemFixoValor = document.getElementById('novoItemFixoValor');
+        const confirmAddItemFixoBtn = document.getElementById('confirmAddItemFixoBtn');
+        const cancelAddItemFixoBtn = document.getElementById('cancelAddItemFixoBtn');
+        const addItemVariavelModal = document.getElementById('addItemVariavelModal');
+        const novoItemVariavelNome = document.getElementById('novoItemVariavelNome');
+        const novoItemVariavelValor = document.getElementById('novoItemVariavelValor');
+        const confirmAddItemVariavelBtn = document.getElementById('confirmAddItemVariavelBtn');
+        const cancelAddItemVariavelBtn = document.getElementById('cancelAddItemVariavelBtn');
+        const addItemExtraModal = document.getElementById('addItemExtraModal');
+        const novoItemExtraNome = document.getElementById('novoItemExtraNome');
+        const novoItemExtraValor = document.getElementById('novoItemExtraValor');
+        const confirmAddItemExtraBtn = document.getElementById('confirmAddItemExtraBtn');
+        const cancelAddItemExtraBtn = document.getElementById('cancelAddItemExtraBtn');
+        const userEditModal = document.getElementById('userEditModal');
+        const editUserRole = document.getElementById('editUserRole');
+        const addNewRoleBtn = document.getElementById('addNewRoleBtn');
+        const addRoleModal = document.getElementById('addRoleModal');
+        const novaFuncaoNome = document.getElementById('novaFuncaoNome');
+        const addRoleConfirmBtn = document.getElementById('addRoleConfirmBtn');
+        const addRoleCancelBtn = document.getElementById('addRoleCancelBtn');
+        const limparHistoricoReceitasBtn = document.getElementById('limparHistoricoReceitasBtn');
+        const tabelaReceitasResumo = document.getElementById('tabelaReceitasResumo');
+        const gerarPDFTransferenciasBtn = document.getElementById('gerarPDFTransferenciasBtn');
+        const esvaziarLixeiraBtn = document.getElementById('esvaziarLixeiraBtn');
+        const salvarPermissoesBtn = document.getElementById('salvarPermissoesBtn');
+        const permissoesContainer = document.getElementById('permissoesContainer');
+        const textosEditaveisContainer = document.getElementById('textosEditaveisContainer');
+        const salvarTextosBtn = document.getElementById('salvarTextosBtn');
+        const tabsContainer = document.getElementById('tabsContainer');
+
+        // Função para verificar permissões do usuário atual
+        function userCan(permission) {
+            if (!currentUser) return false;
+            const perms = rolePermissions[currentUser.role] || rolePermissions['assistente'];
+            return perms[permission] || false;
+        }
+
+        function userCanSeeTab(tabName) {
+            if (!currentUser) return false;
+            if (currentUser.role === 'admin') return true;
+            const perms = rolePermissions[currentUser.role];
+            return perms && perms.tabs && perms.tabs.includes(tabName);
+        }
+
+        function updateTabsVisibility() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                const tabName = tab.dataset.tab;
+                if (!userCanSeeTab(tabName)) {
+                    tab.style.display = 'none';
+                } else {
+                    tab.style.display = 'inline-block';
+                }
+            });
+        }
+
+        function renderPermissoes() {
+            if (!permissoesContainer) return;
+            let html = '';
+            const funcoes = [...new Set(users.map(u => u.role))];
+            funcoes.forEach(role => {
+                const perms = rolePermissions[role] || { tabs: [], canEditSaldo: false, canApprove: false, canDelete: false, canTransfer: false, canManageUsers: false, canManageIndicadores: false, canManageConfig: false, canManageEmolumentos: false };
+                html += `<div style="margin-bottom: 20px; border: 1px solid var(--amarelo); padding: 15px; border-radius: 20px;">
+                    <h4 style="color: var(--azul);">Função: ${role}</h4>
+                    <div><strong>Abas visíveis:</strong></div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0;">
+                        ${['fluxo', 'resumo', 'receitas', 'transferencias', 'lixeira', 'admin', 'permissoes', 'perfil', 'config', 'programador', 'extrato'].map(tab => `
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" class="perm-tab" data-role="${role}" data-tab="${tab}" ${perms.tabs.includes(tab) ? 'checked' : ''}> ${tab}
+                            </label>
+                        `).join('')}
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canEditSaldo" ${perms.canEditSaldo ? 'checked' : ''}> Pode editar saldos</label>
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canApprove" ${perms.canApprove ? 'checked' : ''}> Pode aprovar despesas</label>
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canDelete" ${perms.canDelete ? 'checked' : ''}> Pode eliminar</label>
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canTransfer" ${perms.canTransfer ? 'checked' : ''}> Pode transferir</label>
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canManageUsers" ${perms.canManageUsers ? 'checked' : ''}> Pode gerir utilizadores</label>
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canManageIndicadores" ${perms.canManageIndicadores ? 'checked' : ''}> Pode gerir indicadores</label>
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canManageConfig" ${perms.canManageConfig ? 'checked' : ''}> Pode gerir configurações</label>
+                        <label><input type="checkbox" class="perm-action" data-role="${role}" data-action="canManageEmolumentos" ${perms.canManageEmolumentos ? 'checked' : ''}> Pode gerir emolumentos</label>
+                    </div>
+                </div>`;
+            });
+            permissoesContainer.innerHTML = html;
+        }
+
+        if (salvarPermissoesBtn) {
+            salvarPermissoesBtn.addEventListener('click', () => {
+                const funcoes = [...new Set(users.map(u => u.role))];
+                funcoes.forEach(role => {
+                    const tabs = [];
+                    document.querySelectorAll(`.perm-tab[data-role="${role}"]:checked`).forEach(cb => {
+                        tabs.push(cb.dataset.tab);
+                    });
+                    if (!rolePermissions[role]) rolePermissions[role] = {};
+                    rolePermissions[role].tabs = tabs;
+                    ['canEditSaldo', 'canApprove', 'canDelete', 'canTransfer', 'canManageUsers', 'canManageIndicadores', 'canManageConfig', 'canManageEmolumentos'].forEach(action => {
+                        const cb = document.querySelector(`.perm-action[data-role="${role}"][data-action="${action}"]`);
+                        rolePermissions[role][action] = cb ? cb.checked : false;
+                    });
+                });
+                saveAll();
+                alert('Permissões salvas!');
+                updateTabsVisibility();
+                renderAll();
+            });
+        }
+
+        function renderTextosEditaveis() {
+            if (!textosEditaveisContainer) return;
+            let html = '';
+            for (let key in customTexts) {
+                if (key === 'programadorWarning') continue;
+                html += `<div class="field">
+                    <label>${key}</label>
+                    <input type="text" class="texto-editavel" data-key="${key}" value="${customTexts[key].replace(/"/g, '&quot;')}">
+                </div>`;
+            }
+            textosEditaveisContainer.innerHTML = html;
+        }
+
+        if (salvarTextosBtn) {
+            salvarTextosBtn.addEventListener('click', () => {
+                document.querySelectorAll('.texto-editavel').forEach(input => {
+                    const key = input.dataset.key;
+                    customTexts[key] = input.value;
+                });
+                saveAll();
+                applyCustomTexts();
+                alert('Textos atualizados!');
+            });
+        }
+
+        function calcularQuotasRecebidas() {
+            const quotasDasReceitas = receitas
+                .filter(r => r.codigo === '012' || r.codigo === '013')
+                .reduce((sum, r) => sum + r.valor, 0);
+            return quotasDasReceitas + quotasManuais;
+        }
+
+        function calcularGastos() {
+            const gastosDespesasAprovadas = expenses
+                .filter(e => e.status === 'approved' && e.origem === 'despesas')
+                .reduce((sum, e) => sum + e.amount, 0);
+            const gastosReceitasAprovadas = expenses
+                .filter(e => e.status === 'approved' && e.origem === 'receitas')
+                .reduce((sum, e) => sum + e.amount, 0);
+            return {
+                gastosDespesas: gastosDespesasAprovadas + gastosManuaisDespesas,
+                gastosReceitas: gastosReceitasAprovadas + gastosManuaisReceitas
+            };
+        }
+
+        function atualizarCardsFixos() {
+            const { gastosDespesas, gastosReceitas } = calcularGastos();
+            const quotas = calcularQuotasRecebidas();
+            saldoDespesasSpan.innerHTML = formatCurrency(balanceDespesas).replace(' Kz', ' <small>Kz</small>');
+            saldoReceitasSpan.innerHTML = formatCurrency(balanceReceitas).replace(' Kz', ' <small>Kz</small>');
+            gastosDespesasSpan.innerHTML = formatCurrency(gastosDespesas).replace(' Kz', ' <small>Kz</small>');
+            gastosReceitasSpan.innerHTML = formatCurrency(gastosReceitas).replace(' Kz', ' <small>Kz</small>');
+            quotasRecebidasSpan.innerHTML = formatCurrency(quotas).replace(' Kz', ' <small>Kz</small>');
+
+            const saldoDesp = document.getElementById('saldoDespesas');
+            const saldoRec = document.getElementById('saldoReceitas');
+            const gastosDesp = document.getElementById('gastosDespesas');
+            const gastosRec = document.getElementById('gastosReceitas');
+            const quotasSpan = document.getElementById('quotasRecebidas');
+
+            saldoDesp.classList.toggle('saldo-positivo', balanceDespesas >= 0);
+            saldoDesp.classList.toggle('saldo-negativo', balanceDespesas < 0);
+            saldoRec.classList.toggle('saldo-positivo', balanceReceitas >= 0);
+            saldoRec.classList.toggle('saldo-negativo', balanceReceitas < 0);
+            gastosDesp.classList.toggle('saldo-positivo', gastosDespesas >= 0);
+            gastosDesp.classList.toggle('saldo-negativo', gastosDespesas < 0);
+            gastosRec.classList.toggle('saldo-positivo', gastosReceitas >= 0);
+            gastosRec.classList.toggle('saldo-negativo', gastosReceitas < 0);
+            quotasSpan.classList.toggle('saldo-positivo', quotas >= 0);
+            quotasSpan.classList.toggle('saldo-negativo', quotas < 0);
+        }
+
+        function renderCardsPersonalizados() {
+            const fixosIds = ['saldoDespesas', 'saldoReceitas', 'gastosDespesas', 'gastosReceitas', 'quotasRecebidas'];
+            const todosCards = document.querySelectorAll('.saldo-card');
+            todosCards.forEach(card => {
+                const btn = card.querySelector('.btn-editar-saldo');
+                if (btn && !fixosIds.some(id => card.querySelector(`#${id}`))) {
+                    card.remove();
+                }
+            });
+
+            indicadores.forEach(ind => {
+                const cardSaldo = document.createElement('div');
+                cardSaldo.className = 'saldo-card';
+                cardSaldo.dataset.indicadorId = ind.id;
+                cardSaldo.dataset.tipo = 'saldo';
+                cardSaldo.innerHTML = `
+                    <div class="saldo-card-header">
+                        <i class="fas fa-cube"></i>
+                        <span>Saldo de ${ind.nome}</span>
+                    </div>
+                    <div class="saldo-valor saldo-indicador-${ind.id} ${ind.saldo >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${formatCurrency(ind.saldo)}</div>
+                    ${userCan('canEditSaldo') ? `<button class="btn-editar-saldo editar-indicador" data-id="${ind.id}" data-tipo="saldo"><i class="fas fa-pencil-alt"></i> Ajustar</button>` : ''}
+                `;
+                saldosContainer.appendChild(cardSaldo);
+
+                const cardGasto = document.createElement('div');
+                cardGasto.className = 'saldo-card';
+                cardGasto.dataset.indicadorId = ind.id;
+                cardGasto.dataset.tipo = 'gasto';
+                cardGasto.innerHTML = `
+                    <div class="saldo-card-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Gastos de ${ind.nome}</span>
+                    </div>
+                    <div class="saldo-valor gasto-indicador-${ind.id} ${ind.gasto >= 0 ? 'saldo-positivo' : 'saldo-negativo'}">${formatCurrency(ind.gasto)}</div>
+                    ${userCan('canEditSaldo') ? `<button class="btn-editar-saldo editar-indicador" data-id="${ind.id}" data-tipo="gasto"><i class="fas fa-pencil-alt"></i> Ajustar</button>` : ''}
+                `;
+                saldosContainer.appendChild(cardGasto);
+            });
+
+            document.querySelectorAll('.editar-indicador').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (!userCan('canEditSaldo')) return;
+                    const id = parseInt(btn.dataset.id);
+                    const tipo = btn.dataset.tipo;
+                    abrirModalAjusteIndicador(id, tipo);
+                });
+            });
+        }
+
+        function atualizarOrigens() {
+            const origemContainer = document.getElementById('origemContainer');
+            if (!origemContainer) return;
+            const htmlFixas = `
+                <label><input type="radio" name="origem" value="despesas" checked> Despesas</label>
+                <label><input type="radio" name="origem" value="receitas"> Receitas</label>
+            `;
+            let html = htmlFixas;
+            indicadores.forEach(ind => {
+                html += `<label><input type="radio" name="origem" value="indicador_${ind.id}"> Saldo de ${ind.nome}</label>`;
+            });
+            origemContainer.innerHTML = html;
+        }
+
+        function atualizarOrigensEdit() {
+            const editOrigemContainer = document.getElementById('editOrigemContainer');
+            if (!editOrigemContainer) return;
+            const htmlFixas = `
+                <label><input type="radio" name="editOrigem" value="despesas"> Despesas</label>
+                <label><input type="radio" name="editOrigem" value="receitas"> Receitas</label>
+            `;
+            let html = htmlFixas;
+            indicadores.forEach(ind => {
+                html += `<label><input type="radio" name="editOrigem" value="indicador_${ind.id}"> Saldo de ${ind.nome}</label>`;
+            });
+            editOrigemContainer.innerHTML = html;
+        }
+
+        function abrirModalAjusteIndicador(id, tipo) {
+            if (!userCan('canEditSaldo')) return;
+            const indicador = indicadores.find(i => i.id === id);
+            if (!indicador) return;
+            currentSaldoTipo = 'indicador';
+            currentIndicadorId = id;
+            currentIndicadorTipo = tipo;
+            const nomeTipo = tipo === 'saldo' ? 'Saldo' : 'Gastos';
+            document.getElementById('saldoModalTitle').innerHTML = `<i class="fas fa-cube"></i> Ajustar ${nomeTipo} de ${indicador.nome}`;
+            document.getElementById('saldoAjuste').value = '';
+            document.getElementById('saldoDesc').value = '';
+            document.querySelector('input[name="tipoAjuste"][value="incrementar"]').checked = true;
+            document.getElementById('valorLabel').innerText = 'Valor (Kz) [use negativo para subtrair]';
+            saldoModal.classList.add('show');
+        }
+
+        function renderIndicadoresConfig() {
+            if (!indicadoresPersonalizadosList) return;
+            let html = '';
+            indicadores.forEach(ind => {
+                html += `
+                    <div class="indicador-item">
+                        <div class="indicador-info">
+                            <span class="indicador-nome">${ind.nome}</span><br>
+                            <span>Saldo: ${formatCurrency(ind.saldo)} | Gastos: ${formatCurrency(ind.gasto)}</span>
+                        </div>
+                        ${userCan('canManageIndicadores') ? `<button class="btn-remover-indicador" onclick="removerIndicador(${ind.id})"><i class="fas fa-times"></i></button>` : ''}
+                    </div>
+                `;
+            });
+            indicadoresPersonalizadosList.innerHTML = html || '<p>Nenhum indicador personalizado criado.</p>';
+        }
+
+        window.removerIndicador = (id) => {
+            if (!userCan('canManageIndicadores')) return;
+            showConfirm('Remover este indicador? Isso apagará os cards associados.', () => {
+                indicadores = indicadores.filter(i => i.id !== id);
+                saveAll();
+                renderCardsPersonalizados();
+                renderIndicadoresConfig();
+                atualizarOrigens();
+                atualizarOrigensEdit();
+            });
+        };
+
+        if (btnAdicionarIndicador) {
+            btnAdicionarIndicador.addEventListener('click', () => {
+                if (!userCan('canManageIndicadores')) return;
+                addIndicadorModal.classList.add('show');
+            });
+        }
+
+        if (addIndicadorConfigBtn) {
+            addIndicadorConfigBtn.addEventListener('click', () => {
+                if (!userCan('canManageIndicadores')) return;
+                addIndicadorModal.classList.add('show');
+            });
+        }
+
+        confirmAddIndicadorBtn.addEventListener('click', () => {
+            const nome = novoIndicadorNome.value.trim();
+            if (!nome) {
+                alert('O nome é obrigatório.');
+                return;
+            }
+            const valorSaldo = parseFloat(novoIndicadorValorSaldo.value) || 0;
+            const valorGasto = parseFloat(novoIndicadorValorGasto.value) || 0;
+            const novoId = indicadores.length ? Math.max(...indicadores.map(i => i.id)) + 1 : 1;
+            indicadores.push({ id: novoId, nome, saldo: valorSaldo, gasto: valorGasto });
+            saveAll();
+            renderCardsPersonalizados();
+            renderIndicadoresConfig();
+            atualizarOrigens();
+            atualizarOrigensEdit();
+            addIndicadorModal.classList.remove('show');
+            novoIndicadorNome.value = '';
+            novoIndicadorValorSaldo.value = '0';
+            novoIndicadorValorGasto.value = '0';
+        });
+
+        cancelAddIndicadorBtn.addEventListener('click', () => {
+            addIndicadorModal.classList.remove('show');
+            novoIndicadorNome.value = '';
+            novoIndicadorValorSaldo.value = '0';
+            novoIndicadorValorGasto.value = '0';
+        });
+
+        document.getElementById('addDespesaFixaBtn')?.addEventListener('click', () => {
+            if (!userCan('canManageConfig')) return;
+            addItemFixoModal.classList.add('show');
+        });
+
+        confirmAddItemFixoBtn.addEventListener('click', () => {
+            const nome = novoItemFixoNome.value.trim();
+            if (!nome) {
+                alert('O nome é obrigatório.');
+                return;
+            }
+            const valor = parseFloat(novoItemFixoValor.value) || 0;
+            configDespesasFixas[nome] = valor;
+            saveAll();
+            renderAllConfigs();
+            if (document.getElementById('catSelect').value === 'fixa') {
+                populateItemSelect('fixa', document.getElementById('itemSelect'), document.getElementById('amountInput'));
+            }
+            addItemFixoModal.classList.remove('show');
+            novoItemFixoNome.value = '';
+            novoItemFixoValor.value = '0';
+        });
+
+        cancelAddItemFixoBtn.addEventListener('click', () => {
+            addItemFixoModal.classList.remove('show');
+            novoItemFixoNome.value = '';
+            novoItemFixoValor.value = '0';
+        });
+
+        document.getElementById('addDespesaVariavelBtn')?.addEventListener('click', () => {
+            if (!userCan('canManageConfig')) return;
+            addItemVariavelModal.classList.add('show');
+        });
+
+        confirmAddItemVariavelBtn.addEventListener('click', () => {
+            const nome = novoItemVariavelNome.value.trim();
+            if (!nome) {
+                alert('O nome é obrigatório.');
+                return;
+            }
+            const valor = parseFloat(novoItemVariavelValor.value) || 0;
+            configDespesasVariaveis[nome] = valor;
+            saveAll();
+            renderAllConfigs();
+            if (document.getElementById('catSelect').value === 'variavel') {
+                populateItemSelect('variavel', document.getElementById('itemSelect'), document.getElementById('amountInput'));
+            }
+            addItemVariavelModal.classList.remove('show');
+            novoItemVariavelNome.value = '';
+            novoItemVariavelValor.value = '0';
+        });
+
+        cancelAddItemVariavelBtn.addEventListener('click', () => {
+            addItemVariavelModal.classList.remove('show');
+            novoItemVariavelNome.value = '';
+            novoItemVariavelValor.value = '0';
+        });
+
+        document.getElementById('addDespesaExtraBtn')?.addEventListener('click', () => {
+            if (!userCan('canManageConfig')) return;
+            addItemExtraModal.classList.add('show');
+        });
+
+        confirmAddItemExtraBtn.addEventListener('click', () => {
+            const nome = novoItemExtraNome.value.trim();
+            if (!nome) {
+                alert('O nome é obrigatório.');
+                return;
+            }
+            const valor = parseFloat(novoItemExtraValor.value) || 0;
+            configDespesasExtras[nome] = valor;
+            saveAll();
+            renderAllConfigs();
+            if (document.getElementById('catSelect').value === 'extra') {
+                populateItemSelect('extra', document.getElementById('itemSelect'), document.getElementById('amountInput'));
+            }
+            addItemExtraModal.classList.remove('show');
+            novoItemExtraNome.value = '';
+            novoItemExtraValor.value = '0';
+        });
+
+        cancelAddItemExtraBtn.addEventListener('click', () => {
+            addItemExtraModal.classList.remove('show');
+            novoItemExtraNome.value = '';
+            novoItemExtraValor.value = '0';
+        });
+
+        if (btnTransferir) {
+            btnTransferir.addEventListener('click', () => {
+                if (!userCan('canTransfer')) return;
+                transferModal.classList.add('show');
+            });
+        }
+
+        if (transferConfirmBtn) {
+            transferConfirmBtn.addEventListener('click', () => {
+                const tipo = transferTipo.value;
+                const valor = parseFloat(transferValor.value);
+                if (isNaN(valor) || valor <= 0) {
+                    alert('Valor inválido.');
+                    return;
+                }
+                const desc = transferDesc.value;
+                let origem, destino;
+                if (tipo === 'despesasParaReceitas') {
+                    if (balanceDespesas < valor) {
+                        alert('Saldo de despesas insuficiente.');
+                        return;
+                    }
+                    balanceDespesas -= valor;
+                    balanceReceitas += valor;
+                    origem = 'Despesas';
+                    destino = 'Receitas';
+                } else {
+                    if (balanceReceitas < valor) {
+                        alert('Saldo de receitas insuficiente.');
+                        return;
+                    }
+                    balanceReceitas -= valor;
+                    balanceDespesas += valor;
+                    origem = 'Receitas';
+                    destino = 'Despesas';
+                }
+                transferencias.push({
+                    id: Date.now(),
+                    data: new Date().toISOString().split('T')[0],
+                    origem,
+                    destino,
+                    valor,
+                    descricao: desc
+                });
+                saveAll();
+                renderAll();
+                transferModal.classList.remove('show');
+                transferValor.value = '';
+                transferDesc.value = '';
+            });
+        }
+
+        if (transferCancelBtn) {
+            transferCancelBtn.addEventListener('click', () => {
+                transferModal.classList.remove('show');
+            });
+        }
+
+        function renderEmolumentosList() {
+            if (!emolumentosList) return;
+            let html = '';
+            configEmolumentos.forEach((e, index) => {
+                html += `
+                    <div class="emolumento-item">
+                        <div class="emolumento-info">
+                            <span class="emolumento-codigo">${e.codigo}</span>
+                            <span class="emolumento-descricao">${e.descricao}</span>
+                            <span class="emolumento-valor">${formatCurrency(e.valor)}</span>
+                        </div>
+                        <div class="emolumento-actions">
+                            ${userCan('canManageEmolumentos') ? `<button onclick="editarEmolumento(${index})" title="Editar"><i class="fas fa-edit"></i></button>` : ''}
+                            ${userCan('canManageEmolumentos') ? `<button onclick="removerEmolumento(${index})" title="Remover"><i class="fas fa-trash" style="color:var(--vermelho);"></i></button>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            emolumentosList.innerHTML = html;
+        }
+
+        window.editarEmolumento = (index) => {
+            if (!userCan('canManageEmolumentos')) return;
+            currentEmolumentoIndex = index;
+            const e = configEmolumentos[index];
+            emolumentoCodigo.value = e.codigo;
+            emolumentoDescricao.value = e.descricao;
+            emolumentoValor.value = e.valor;
+            emolumentoModalTitle.innerHTML = '<i class="fas fa-edit"></i> Editar Emolumento';
+            emolumentoEditModal.classList.add('show');
+        };
+
+        window.removerEmolumento = (index) => {
+            if (!userCan('canManageEmolumentos')) return;
+            showConfirm('Remover este emolumento?', () => {
+                configEmolumentos.splice(index, 1);
+                saveAll();
+                renderEmolumentosList();
+                preencherEmolumentos();
+                renderTabelaEmolumentos();
+            });
+        };
+
+        if (addEmolumentoBtn) {
+            addEmolumentoBtn.addEventListener('click', () => {
+                if (!userCan('canManageEmolumentos')) return;
+                currentEmolumentoIndex = null;
+                emolumentoCodigo.value = '';
+                emolumentoDescricao.value = '';
+                emolumentoValor.value = '';
+                emolumentoModalTitle.innerHTML = '<i class="fas fa-plus"></i> Adicionar Emolumento';
+                emolumentoEditModal.classList.add('show');
+            });
+        }
+
+        if (emolumentoConfirmBtn) {
+            emolumentoConfirmBtn.addEventListener('click', () => {
+                const codigo = emolumentoCodigo.value.trim();
+                const descricao = emolumentoDescricao.value.trim();
+                const valor = parseFloat(emolumentoValor.value);
+                if (!codigo || !descricao || isNaN(valor)) {
+                    alert('Preencha todos os campos corretamente.');
+                    return;
+                }
+                if (currentEmolumentoIndex !== null) {
+                    configEmolumentos[currentEmolumentoIndex] = { codigo, descricao, valor };
+                } else {
+                    configEmolumentos.push({ codigo, descricao, valor });
+                }
+                saveAll();
+                renderEmolumentosList();
+                preencherEmolumentos();
+                renderTabelaEmolumentos();
+                emolumentoEditModal.classList.remove('show');
+            });
+        }
+
+        if (emolumentoCancelBtn) {
+            emolumentoCancelBtn.addEventListener('click', () => {
+                emolumentoEditModal.classList.remove('show');
+            });
+        }
+
+        function populateItemSelect(cat, selectElement, amountElement = null) {
+            selectElement.innerHTML = '';
+            const itens = getItensPorCategoria(cat);
+            itens.forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                selectElement.appendChild(opt);
+            });
+            if (amountElement && itens.length > 0) {
+                const primeiroItem = itens[0];
+                amountElement.value = getValorPadraoItem(cat, primeiroItem);
+            }
+        }
+
+        if (document.getElementById('catSelect')) {
+            document.getElementById('catSelect').addEventListener('change', (e) => {
+                const cat = e.target.value;
+                const selectItem = document.getElementById('itemSelect');
+                const amountInput = document.getElementById('amountInput');
+                populateItemSelect(cat, selectItem, amountInput);
+            });
+            document.getElementById('itemSelect').addEventListener('change', (e) => {
+                const cat = document.getElementById('catSelect').value;
+                const item = e.target.value;
+                const amountInput = document.getElementById('amountInput');
+                amountInput.value = getValorPadraoItem(cat, item);
+            });
+            populateItemSelect('fixa', document.getElementById('itemSelect'), document.getElementById('amountInput'));
+        }
+
+        function renderTable(list, isAdmin, isPending) {
+            if (!list.length) return '<p style="padding:12px; text-align:center;">Nenhum registo encontrado.</p>';
+            let html = '<table><tr><th>Data</th><th>Categoria</th><th>Item</th><th>Descrição</th><th>Valor</th><th>Origem</th><th>Status</th>';
+            if (isAdmin) html += '<th>Ações</th>';
+            html += '</tr>';
+            list.forEach(ex => {
+                const catLabel = { fixa:'Fixa', variavel:'Variável', extra:'Extra' }[ex.category] || ex.category;
+                let origemLabel = ex.origem;
+                if (ex.origem === 'despesas') origemLabel = 'Despesas';
+                else if (ex.origem === 'receitas') origemLabel = 'Receitas';
+                else if (ex.origem.startsWith('indicador_')) {
+                    const id = parseInt(ex.origem.split('_')[1]);
+                    const ind = indicadores.find(i => i.id === id);
+                    origemLabel = ind ? `Saldo de ${ind.nome}` : ex.origem;
+                }
+                html += `<tr>
+                    <td>${ex.date}</td>
+                    <td>${catLabel}</td>
+                    <td>${ex.item}</td>
+                    <td>${ex.description || '-'}</td>
+                    <td>${formatCurrency(ex.amount)}</td>
+                    <td>${origemLabel}</td>
+                    <td><span class="status-badge ${ex.status === 'approved' ? 'status-approved' : ''}">${ex.status}</span></td>`;
+                if (isAdmin) {
+                    html += `<td class="actions">
+                        ${isPending && userCan('canApprove') ? `<button onclick="approveExpense(${ex.id})" title="Aprovar"><i class="fas fa-check-circle"></i></button>` : ''}
+                        ${userCan('canDelete') ? `<button onclick="openEditModal(${ex.id})" title="Editar"><i class="fas fa-edit"></i></button>` : ''}
+                        ${userCan('canDelete') ? `<button onclick="deleteExpense(${ex.id})" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
+                    </td>`;
+                }
+                html += '</tr>';
+            });
+            html += '</table>';
+            return html;
+        }
+
+        function renderFluxoTables() {
+            const pendBody = document.getElementById('pendentesTable');
+            const aproBody = document.getElementById('aprovadasTable');
+            const isAdmin = userCan('canApprove') || userCan('canDelete');
+            const pendentes = expenses.filter(e => e.status === 'pending');
+            const aprovadas = expenses.filter(e => e.status === 'approved');
+            pendBody.innerHTML = renderTable(pendentes, isAdmin, true);
+            aproBody.innerHTML = renderTable(aprovadas, isAdmin, false);
+        }
+
+        function renderTabelaFiltrada() {
+            const filterCat = document.getElementById('filterCategoria').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = expenses.filter(e => {
+                if (filterCat && e.category !== filterCat) return false;
+                if (search && !e.item.toLowerCase().includes(search) && !(e.description || '').toLowerCase().includes(search)) return false;
+                return true;
+            });
+            let html = '<table><tr><th>Data</th><th>Categoria</th><th>Item</th><th>Descrição</th><th>Valor</th><th>Origem</th><th>Status</th></tr>';
+            filtered.forEach(ex => {
+                const catLabel = { fixa:'Fixa', variavel:'Variável', extra:'Extra' }[ex.category] || ex.category;
+                let origemLabel = ex.origem;
+                if (ex.origem === 'despesas') origemLabel = 'Despesas';
+                else if (ex.origem === 'receitas') origemLabel = 'Receitas';
+                else if (ex.origem.startsWith('indicador_')) {
+                    const id = parseInt(ex.origem.split('_')[1]);
+                    const ind = indicadores.find(i => i.id === id);
+                    origemLabel = ind ? `Saldo de ${ind.nome}` : ex.origem;
+                }
+                html += `<tr>
+                    <td>${ex.date}</td>
+                    <td>${catLabel}</td>
+                    <td>${ex.item}</td>
+                    <td>${ex.description || '-'}</td>
+                    <td>${formatCurrency(ex.amount)}</td>
+                    <td>${origemLabel}</td>
+                    <td><span class="status-badge ${ex.status === 'approved' ? 'status-approved' : ''}">${ex.status}</span></td>
+                </tr>`;
+            });
+            html += '</table>';
+            document.getElementById('tabelaFiltrada').innerHTML = html;
+        }
+
+        function computeTotais() {
+            const approved = expenses.filter(e => e.status === 'approved');
+            const now = new Date();
+            const currentMonth = now.getMonth(), currentYear = now.getFullYear();
+            let mes = 0, seis = 0, ano = 0;
+            approved.forEach(ex => {
+                const d = new Date(ex.date + 'T12:00:00');
+                if (isNaN(d)) return;
+                const year = d.getFullYear(), month = d.getMonth();
+                if (year === currentYear && month === currentMonth) mes += ex.amount;
+                if (year > currentYear || (year === currentYear && month >= currentMonth - 5)) seis += ex.amount;
+                if (year === currentYear) ano += ex.amount;
+            });
+            document.getElementById('totalMes').innerText = formatCurrency(mes).replace(' Kz', '');
+            document.getElementById('total6Meses').innerText = formatCurrency(seis).replace(' Kz', '');
+            document.getElementById('totalAnual').innerText = formatCurrency(ano).replace(' Kz', '');
+        }
+
+        // ==================== AÇÕES ADMIN ====================
+        window.approveExpense = (id) => {
+            if (!userCan('canApprove')) return;
+            const exp = expenses.find(e => e.id === id);
+            if (!exp || exp.status !== 'pending') return;
+            
+            if (exp.origem === 'despesas' && balanceDespesas < exp.amount) {
+                alert('Saldo de despesas insuficiente!');
+                return;
+            }
+            if (exp.origem === 'receitas' && balanceReceitas < exp.amount) {
+                alert('Saldo de receitas insuficiente!');
+                return;
+            }
+            if (exp.origem.startsWith('indicador_')) {
+                const idInd = parseInt(exp.origem.split('_')[1]);
+                const ind = indicadores.find(i => i.id === idInd);
+                if (!ind || ind.saldo < exp.amount) {
+                    alert(`Saldo de ${ind ? ind.nome : 'indicador'} insuficiente!`);
+                    return;
+                }
+            }
+
+            showConfirm('Deseja aprovar esta despesa?', () => {
+                exp.status = 'approved';
+                if (exp.origem === 'despesas') {
+                    balanceDespesas -= exp.amount;
+                } else if (exp.origem === 'receitas') {
+                    balanceReceitas -= exp.amount;
+                } else if (exp.origem.startsWith('indicador_')) {
+                    const idInd = parseInt(exp.origem.split('_')[1]);
+                    const ind = indicadores.find(i => i.id === idInd);
+                    if (ind) {
+                        ind.saldo -= exp.amount;
+                        ind.gasto += exp.amount;
+                    }
+                }
+                saveAll();
+                renderAll();
+                atualizarGrafico();
+            });
+        };
+
+        window.deleteExpense = (id) => {
+            if (!userCan('canDelete')) return;
+            showConfirm('Mover esta despesa para a lixeira?', () => {
+                const index = expenses.findIndex(e => e.id === id);
+                if (index !== -1) {
+                    const exp = expenses[index];
+                    if (exp.status === 'approved') {
+                        if (exp.origem === 'despesas') {
+                            balanceDespesas += exp.amount;
+                        } else if (exp.origem === 'receitas') {
+                            balanceReceitas += exp.amount;
+                        } else if (exp.origem.startsWith('indicador_')) {
+                            const idInd = parseInt(exp.origem.split('_')[1]);
+                            const ind = indicadores.find(i => i.id === idInd);
+                            if (ind) {
+                                ind.saldo += exp.amount;
+                                ind.gasto -= exp.amount;
+                            }
+                        }
+                    }
+                    lixeira.despesas.push({ ...exp, deletedAt: new Date().toISOString() });
+                    expenses.splice(index, 1);
+                    saveAll();
+                    renderAll();
+                    atualizarGrafico();
+                }
+            });
+        };
+
+        // ==================== EDIÇÃO ====================
+        const editModal = document.getElementById('editModal');
+        const editCat = document.getElementById('editCat');
+        const editItem = document.getElementById('editItem');
+        const editDesc = document.getElementById('editDesc');
+        const editAmount = document.getElementById('editAmount');
+        const editDate = document.getElementById('editDate');
+        const editOrigemRadios = document.getElementsByName('editOrigem');
+        let currentEditId = null;
+
+        window.openEditModal = (id) => {
+            if (!userCan('canDelete')) return;
+            const exp = expenses.find(e => e.id === id);
+            if (!exp) return;
+            currentEditId = id;
+            editCat.innerHTML = '';
+            ['fixa', 'variavel', 'extra'].forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = { fixa: 'Fixa', variavel: 'Variável', extra: 'Extra' }[c];
+                if (c === exp.category) opt.selected = true;
+                editCat.appendChild(opt);
+            });
+            const itens = getItensPorCategoria(exp.category);
+            editItem.innerHTML = '';
+            itens.forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                if (i === exp.item) opt.selected = true;
+                editItem.appendChild(opt);
+            });
+            editAmount.value = exp.amount;
+            editDesc.value = exp.description || '';
+            editDate.value = exp.date;
+            atualizarOrigensEdit();
+            setTimeout(() => {
+                const radios = document.getElementsByName('editOrigem');
+                for (let r of radios) {
+                    if (r.value === exp.origem) {
+                        r.checked = true;
+                        break;
+                    }
+                }
+            }, 50);
+            editModal.classList.add('show');
+        };
+
+        if (editCat) {
+            editCat.addEventListener('change', () => {
+                const cat = editCat.value;
+                const itens = getItensPorCategoria(cat);
+                editItem.innerHTML = '';
+                itens.forEach(i => {
+                    const opt = document.createElement('option');
+                    opt.value = i;
+                    opt.textContent = i;
+                    editItem.appendChild(opt);
+                });
+                if (itens.length > 0) {
+                    editAmount.value = getValorPadraoItem(cat, itens[0]);
+                }
+            });
+            editItem.addEventListener('change', () => {
+                const cat = editCat.value;
+                const item = editItem.value;
+                editAmount.value = getValorPadraoItem(cat, item);
+            });
+        }
+
+        document.getElementById('editSaveBtn')?.addEventListener('click', () => {
+            if (!currentEditId || !userCan('canDelete')) return;
+            const exp = expenses.find(e => e.id === currentEditId);
+            if (!exp) return;
+            const oldAmount = exp.amount;
+            const oldOrigem = exp.origem;
+            const newAmount = parseFloat(editAmount.value);
+            if (isNaN(newAmount) || newAmount <= 0) { alert('Valor inválido'); return; }
+            const newOrigem = Array.from(document.getElementsByName('editOrigem')).find(r => r.checked)?.value || 'despesas';
+
+            if (exp.status === 'approved') {
+                if (oldOrigem === 'despesas') {
+                    balanceDespesas += oldAmount;
+                } else if (oldOrigem === 'receitas') {
+                    balanceReceitas += oldAmount;
+                } else if (oldOrigem.startsWith('indicador_')) {
+                    const idInd = parseInt(oldOrigem.split('_')[1]);
+                    const ind = indicadores.find(i => i.id === idInd);
+                    if (ind) {
+                        ind.saldo += oldAmount;
+                        ind.gasto -= oldAmount;
+                    }
+                }
+
+                if (newOrigem === 'despesas' && balanceDespesas < newAmount) {
+                    alert('Saldo de despesas insuficiente!');
+                    if (oldOrigem === 'despesas') balanceDespesas -= oldAmount;
+                    else if (oldOrigem === 'receitas') balanceReceitas -= oldAmount;
+                    else if (oldOrigem.startsWith('indicador_')) {
+                        const idInd = parseInt(oldOrigem.split('_')[1]);
+                        const ind = indicadores.find(i => i.id === idInd);
+                        if (ind) {
+                            ind.saldo -= oldAmount;
+                            ind.gasto += oldAmount;
+                        }
+                    }
+                    return;
+                }
+                if (newOrigem === 'receitas' && balanceReceitas < newAmount) {
+                    alert('Saldo de receitas insuficiente!');
+                    if (oldOrigem === 'despesas') balanceDespesas -= oldAmount;
+                    else if (oldOrigem === 'receitas') balanceReceitas -= oldAmount;
+                    else if (oldOrigem.startsWith('indicador_')) {
+                        const idInd = parseInt(oldOrigem.split('_')[1]);
+                        const ind = indicadores.find(i => i.id === idInd);
+                        if (ind) {
+                            ind.saldo -= oldAmount;
+                            ind.gasto += oldAmount;
+                        }
+                    }
+                    return;
+                }
+                if (newOrigem.startsWith('indicador_')) {
+                    const idInd = parseInt(newOrigem.split('_')[1]);
+                    const ind = indicadores.find(i => i.id === idInd);
+                    if (!ind || ind.saldo < newAmount) {
+                        alert(`Saldo de ${ind ? ind.nome : 'indicador'} insuficiente!`);
+                        if (oldOrigem === 'despesas') balanceDespesas -= oldAmount;
+                        else if (oldOrigem === 'receitas') balanceReceitas -= oldAmount;
+                        else if (oldOrigem.startsWith('indicador_')) {
+                            const idIndOld = parseInt(oldOrigem.split('_')[1]);
+                            const indOld = indicadores.find(i => i.id === idIndOld);
+                            if (indOld) {
+                                indOld.saldo -= oldAmount;
+                                indOld.gasto += oldAmount;
+                            }
+                        }
+                        return;
+                    }
+                }
+
+                if (newOrigem === 'despesas') {
+                    balanceDespesas -= newAmount;
+                } else if (newOrigem === 'receitas') {
+                    balanceReceitas -= newAmount;
+                } else if (newOrigem.startsWith('indicador_')) {
+                    const idInd = parseInt(newOrigem.split('_')[1]);
+                    const ind = indicadores.find(i => i.id === idInd);
+                    if (ind) {
+                        ind.saldo -= newAmount;
+                        ind.gasto += newAmount;
+                    }
+                }
+            }
+
+            exp.category = editCat.value;
+            exp.item = editItem.value;
+            exp.description = editDesc.value;
+            exp.amount = newAmount;
+            exp.date = editDate.value;
+            exp.origem = newOrigem;
+
+            saveAll();
+            renderAll();
+            atualizarGrafico();
+            editModal.classList.remove('show');
+        });
+
+        document.getElementById('editCancelBtn')?.addEventListener('click', () => editModal.classList.remove('show'));
+
+        // ==================== NOVA DESPESA ====================
+        document.getElementById('saveDespesaBtn')?.addEventListener('click', () => {
+            if (!userCan('canApprove')) return;
+            const cat = document.getElementById('catSelect').value;
+            const item = document.getElementById('itemSelect').value;
+            const desc = document.getElementById('descInput').value;
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const date = document.getElementById('dateInput').value;
+            const origem = document.querySelector('input[name="origem"]:checked')?.value || 'despesas';
+            if (!amount || amount <= 0 || !date) { alert('Preencha todos os campos'); return; }
+            showConfirm('Guardar despesa pendente?', () => {
+                const newId = expenses.length ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
+                expenses.push({
+                    id: newId,
+                    category: cat,
+                    item,
+                    description: desc,
+                    amount,
+                    date,
+                    status: 'pending',
+                    origem
+                });
+                saveAll();
+                renderAll();
+                document.getElementById('descInput').value = '';
+                document.getElementById('amountInput').value = '';
+            });
+        });
+
+        // ==================== AJUSTE DE SALDOS E GASTOS ====================
+        const saldoModal = document.getElementById('saldoModal');
+        let currentSaldoTipo = 'despesas';
+        let currentIndicadorId = null;
+        let currentIndicadorTipo = null;
+
+        function abrirModalAjuste(tipo, titulo) {
+            if (!userCan('canEditSaldo')) return;
+            currentSaldoTipo = tipo;
+            currentIndicadorId = null;
+            currentIndicadorTipo = null;
+            document.getElementById('saldoModalTitle').innerHTML = titulo;
+            document.getElementById('saldoAjuste').value = '';
+            document.getElementById('saldoDesc').value = '';
+            document.querySelector('input[name="tipoAjuste"][value="incrementar"]').checked = true;
+            document.getElementById('valorLabel').innerText = 'Valor (Kz) [use negativo para subtrair]';
+            saldoModal.classList.add('show');
+        }
+
+        if (editarSaldoDespesasBtn) {
+            editarSaldoDespesasBtn.addEventListener('click', () => abrirModalAjuste('despesas', '<i class="fas fa-wallet"></i> Ajustar Saldo de Despesas'));
+        }
+        if (editarSaldoReceitasBtn) {
+            editarSaldoReceitasBtn.addEventListener('click', () => abrirModalAjuste('receitas', '<i class="fas fa-coins"></i> Ajustar Saldo de Receitas'));
+        }
+        if (editarGastosDespesasBtn) {
+            editarGastosDespesasBtn.addEventListener('click', () => abrirModalAjuste('gastosDespesas', '<i class="fas fa-chart-line"></i> Ajustar Gastos (Despesas)'));
+        }
+        if (editarGastosReceitasBtn) {
+            editarGastosReceitasBtn.addEventListener('click', () => abrirModalAjuste('gastosReceitas', '<i class="fas fa-chart-pie"></i> Ajustar Gastos (Receitas)'));
+        }
+        if (editarQuotasRecebidasBtn) {
+            editarQuotasRecebidasBtn.addEventListener('click', () => abrirModalAjuste('quotas', '<i class="fas fa-ticket-alt"></i> Ajustar Quotas Recebidas'));
+        }
+
+        document.querySelectorAll('input[name="tipoAjuste"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const label = document.getElementById('valorLabel');
+                label.innerText = e.target.value === 'incrementar' ? 'Valor (Kz) [use negativo para subtrair]' : 'Novo valor (Kz)';
+            });
+        });
+
+        document.getElementById('zerarSaldoBtn')?.addEventListener('click', () => {
+            if (!userCan('canEditSaldo')) return;
+            let mensagem = '';
+            switch (currentSaldoTipo) {
+                case 'despesas': mensagem = 'Zerar saldo de Despesas?'; break;
+                case 'receitas': mensagem = 'Zerar saldo de Receitas?'; break;
+                case 'gastosDespesas': mensagem = 'Zerar gastos de Despesas?'; break;
+                case 'gastosReceitas': mensagem = 'Zerar gastos de Receitas?'; break;
+                case 'quotas': mensagem = 'Zerar quotas recebidas?'; break;
+                case 'indicador': 
+                    const ind = indicadores.find(i => i.id === currentIndicadorId);
+                    if (ind) {
+                        mensagem = `Zerar ${currentIndicadorTipo === 'saldo' ? 'saldo' : 'gastos'} de ${ind.nome}?`;
+                    }
+                    break;
+            }
+            showConfirm(mensagem, () => {
+                switch (currentSaldoTipo) {
+                    case 'despesas': balanceDespesas = 0; break;
+                    case 'receitas': balanceReceitas = 0; break;
+                    case 'gastosDespesas': gastosManuaisDespesas = 0; break;
+                    case 'gastosReceitas': gastosManuaisReceitas = 0; break;
+                    case 'quotas': quotasManuais = 0; break;
+                    case 'indicador':
+                        if (currentIndicadorId && currentIndicadorTipo) {
+                            const idx = indicadores.findIndex(i => i.id === currentIndicadorId);
+                            if (idx !== -1) {
+                                if (currentIndicadorTipo === 'saldo') indicadores[idx].saldo = 0;
+                                else indicadores[idx].gasto = 0;
+                            }
+                        }
+                        break;
+                }
+                saveAll();
+                renderAll();
+                saldoModal.classList.remove('show');
+            });
+        });
+
+        document.getElementById('saldoCancelBtn')?.addEventListener('click', () => saldoModal.classList.remove('show'));
+
+        document.getElementById('saldoConfirmBtn')?.addEventListener('click', () => {
+            if (!userCan('canEditSaldo')) return;
+            let valor = parseFloat(document.getElementById('saldoAjuste').value);
+            if (isNaN(valor)) valor = 0;
+            const tipo = document.querySelector('input[name="tipoAjuste"]:checked')?.value;
+
+            switch (currentSaldoTipo) {
+                case 'despesas':
+                    if (tipo === 'incrementar') balanceDespesas += valor;
+                    else balanceDespesas = valor;
+                    break;
+                case 'receitas':
+                    if (tipo === 'incrementar') balanceReceitas += valor;
+                    else balanceReceitas = valor;
+                    break;
+                case 'gastosDespesas':
+                    if (tipo === 'incrementar') gastosManuaisDespesas += valor;
+                    else gastosManuaisDespesas = valor;
+                    break;
+                case 'gastosReceitas':
+                    if (tipo === 'incrementar') gastosManuaisReceitas += valor;
+                    else gastosManuaisReceitas = valor;
+                    break;
+                case 'quotas':
+                    if (tipo === 'incrementar') quotasManuais += valor;
+                    else quotasManuais = valor;
+                    break;
+                case 'indicador':
+                    if (currentIndicadorId && currentIndicadorTipo) {
+                        const idx = indicadores.findIndex(i => i.id === currentIndicadorId);
+                        if (idx !== -1) {
+                            if (currentIndicadorTipo === 'saldo') {
+                                if (tipo === 'incrementar') indicadores[idx].saldo += valor;
+                                else indicadores[idx].saldo = valor;
+                            } else {
+                                if (tipo === 'incrementar') indicadores[idx].gasto += valor;
+                                else indicadores[idx].gasto = valor;
+                            }
+                        }
+                    }
+                    break;
+            }
+            saveAll();
+            renderAll();
+            saldoModal.classList.remove('show');
+            document.getElementById('saldoAjuste').value = '';
+            document.getElementById('saldoDesc').value = '';
+        });
+
+        // ==================== RECEITAS ====================
+        const emolumentoSelect = document.getElementById('emolumentoSelect');
+        const receitaValor = document.getElementById('receitaValor');
+
+        function preencherEmolumentos() {
+            if (!emolumentoSelect) return;
+            emolumentoSelect.innerHTML = '';
+            configEmolumentos.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.codigo;
+                opt.textContent = `${e.codigo} - ${e.descricao} (${formatCurrency(e.valor)})`;
+                opt.dataset.valor = e.valor;
+                emolumentoSelect.appendChild(opt);
+            });
+            if (configEmolumentos.length) receitaValor.value = configEmolumentos[0].valor;
+        }
+
+        if (emolumentoSelect) {
+            emolumentoSelect.addEventListener('change', (e) => {
+                const opt = e.target.selectedOptions[0];
+                if (opt) receitaValor.value = opt.dataset.valor;
+            });
+        }
+
+        document.getElementById('registrarReceitaBtn')?.addEventListener('click', () => {
+            if (!userCan('canApprove')) { alert('Sem permissão para registrar receitas.'); return; }
+            const codigo = emolumentoSelect.value;
+            const emol = configEmolumentos.find(e => e.codigo === codigo);
+            if (!emol) return;
+            const valor = emol.valor;
+            const desc = document.getElementById('receitaDesc').value;
+            const data = document.getElementById('receitaData').value;
+            if (!data) { alert('Selecione a data'); return; }
+            showConfirm('Registar receita?', () => {
+                const newId = receitas.length ? Math.max(...receitas.map(r => r.id)) + 1 : 1;
+                receitas.push({ id: newId, codigo: emol.codigo, descricao: emol.descricao, valor, data, descricaoAdicional: desc });
+                balanceReceitas += valor;
+                saveAll();
+                renderAll();
+                document.getElementById('receitaDesc').value = '';
+                document.getElementById('receitaData').value = '';
+            });
+        });
+
+        function renderTabelaReceitas() {
+            const container = document.getElementById('tabelaReceitas');
+            if (!receitas.length) { container.innerHTML = '<p style="padding:12px; text-align:center;">Nenhuma receita registada.</p>'; return; }
+            let html = '<table><tr><th>Data</th><th>Código</th><th>Descrição</th><th>Valor</th>';
+            if (userCan('canDelete')) html += '<th>Ações</th>';
+            html += '</tr>';
+            receitas.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(r => {
+                html += `<tr><td>${r.data}</td><td>${r.codigo}</td><td>${r.descricao}${r.descricaoAdicional ? ' - ' + r.descricaoAdicional : ''}</td><td>${formatCurrency(r.valor)}</td>`;
+                if (userCan('canDelete')) {
+                    html += `<td class="actions"><button onclick="deleteReceita(${r.id})" title="Eliminar"><i class="fas fa-trash"></i></button></td>`;
+                }
+                html += '</tr>';
+            });
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        window.deleteReceita = (id) => {
+            if (!userCan('canDelete')) return;
+            showConfirm('Mover esta receita para a lixeira?', () => {
+                const index = receitas.findIndex(r => r.id === id);
+                if (index !== -1) {
+                    const rec = receitas[index];
+                    balanceReceitas -= rec.valor;
+                    lixeira.receitas.push({ ...rec, deletedAt: new Date().toISOString() });
+                    receitas.splice(index, 1);
+                    saveAll();
+                    renderAll();
+                }
+            });
+        };
+
+        function renderTabelaEmolumentos() {
+            const container = document.getElementById('tabelaEmolumentos');
+            let html = '<table><tr><th>Código</th><th>Descrição</th><th>Valor</th></tr>';
+            configEmolumentos.forEach(e => {
+                html += `<tr><td>${e.codigo}</td><td>${e.descricao}</td><td>${formatCurrency(e.valor)}</td></tr>`;
+            });
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        if (limparHistoricoReceitasBtn) {
+            limparHistoricoReceitasBtn.addEventListener('click', () => {
+                if (!userCan('canDelete')) return;
+                showConfirm('Mover todas as receitas para a lixeira?', () => {
+                    receitas.forEach(rec => {
+                        lixeira.receitas.push({ ...rec, deletedAt: new Date().toISOString() });
+                        balanceReceitas -= rec.valor;
+                    });
+                    receitas = [];
+                    saveAll();
+                    renderAll();
+                });
+            });
+        }
+
+        function renderTabelaTransferencias() {
+            const container = document.getElementById('tabelaTransferencias');
+            if (!transferencias.length) { container.innerHTML = '<p style="padding:12px; text-align:center;">Nenhuma transferência registada.</p>'; return; }
+            let html = '<table><tr><th>Data</th><th>Origem</th><th>Destino</th><th>Valor</th><th>Descrição</th>';
+            if (userCan('canDelete')) html += '<th>Ações</th>';
+            html += '</tr>';
+            transferencias.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(t => {
+                html += `<tr><td>${t.data}</td><td>${t.origem}</td><td>${t.destino}</td><td>${formatCurrency(t.valor)}</td><td>${t.descricao || ''}</td>`;
+                if (userCan('canDelete')) {
+                    html += `<td class="actions"><button onclick="deleteTransferencia(${t.id})" title="Eliminar"><i class="fas fa-trash"></i></button></td>`;
+                }
+                html += '</tr>';
+            });
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        window.deleteTransferencia = (id) => {
+            if (!userCan('canDelete')) return;
+            showConfirm('Mover esta transferência para a lixeira?', () => {
+                const index = transferencias.findIndex(t => t.id === id);
+                if (index !== -1) {
+                    const trans = transferencias[index];
+                    lixeira.transferencias.push({ ...trans, deletedAt: new Date().toISOString() });
+                    transferencias.splice(index, 1);
+                    saveAll();
+                    renderAll();
+                }
+            });
+        };
+
+        if (gerarPDFTransferenciasBtn) {
+            gerarPDFTransferenciasBtn.addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text('Histórico de Transferências', 14, 20);
+                doc.setFontSize(10);
+                let y = 30;
+                transferencias.forEach(t => {
+                    doc.text(`${t.data} - ${t.origem} → ${t.destino}: ${formatCurrency(t.valor)} ${t.descricao ? ' (' + t.descricao + ')' : ''}`, 14, y);
+                    y += 7;
+                });
+                doc.save('transferencias.pdf');
+            });
+        }
+
+        function renderLixeira() {
+            const despesasTable = document.getElementById('lixeiraDespesasTable');
+            if (despesasTable) {
+                if (!lixeira.despesas.length) {
+                    despesasTable.innerHTML = '<p>Nenhuma despesa na lixeira.</p>';
+                } else {
+                    let html = '<table><tr><th>Data</th><th>Categoria</th><th>Item</th><th>Valor</th><th>Origem</th><th>Ações</th></tr>';
+                    lixeira.despesas.forEach((item, index) => {
+                        html += `<tr>
+                            <td>${item.date}</td>
+                            <td>${item.category}</td>
+                            <td>${item.item}</td>
+                            <td>${formatCurrency(item.amount)}</td>
+                            <td>${item.origem}</td>
+                            <td class="actions">
+                                <button onclick="restaurarDespesa(${index})" title="Restaurar"><i class="fas fa-trash-restore"></i></button>
+                                <button onclick="removerDespesaLixo(${index})" title="Remover permanentemente"><i class="fas fa-times-circle" style="color:var(--vermelho);"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    despesasTable.innerHTML = html;
+                }
+            }
+
+            const receitasTable = document.getElementById('lixeiraReceitasTable');
+            if (receitasTable) {
+                if (!lixeira.receitas.length) {
+                    receitasTable.innerHTML = '<p>Nenhuma receita na lixeira.</p>';
+                } else {
+                    let html = '<table><tr><th>Data</th><th>Código</th><th>Descrição</th><th>Valor</th><th>Ações</th></tr>';
+                    lixeira.receitas.forEach((item, index) => {
+                        html += `<tr>
+                            <td>${item.data}</td>
+                            <td>${item.codigo}</td>
+                            <td>${item.descricao}</td>
+                            <td>${formatCurrency(item.valor)}</td>
+                            <td class="actions">
+                                <button onclick="restaurarReceita(${index})" title="Restaurar"><i class="fas fa-trash-restore"></i></button>
+                                <button onclick="removerReceitaLixo(${index})" title="Remover permanentemente"><i class="fas fa-times-circle" style="color:var(--vermelho);"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    receitasTable.innerHTML = html;
+                }
+            }
+
+            const transfsTable = document.getElementById('lixeiraTransferenciasTable');
+            if (transfsTable) {
+                if (!lixeira.transferencias.length) {
+                    transfsTable.innerHTML = '<p>Nenhuma transferência na lixeira.</p>';
+                } else {
+                    let html = '<table><tr><th>Data</th><th>Origem</th><th>Destino</th><th>Valor</th><th>Ações</th></tr>';
+                    lixeira.transferencias.forEach((item, index) => {
+                        html += `<tr>
+                            <td>${item.data}</td>
+                            <td>${item.origem}</td>
+                            <td>${item.destino}</td>
+                            <td>${formatCurrency(item.valor)}</td>
+                            <td class="actions">
+                                <button onclick="restaurarTransferencia(${index})" title="Restaurar"><i class="fas fa-trash-restore"></i></button>
+                                <button onclick="removerTransferenciaLixo(${index})" title="Remover permanentemente"><i class="fas fa-times-circle" style="color:var(--vermelho);"></i></button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    transfsTable.innerHTML = html;
+                }
+            }
+        }
+
+        window.restaurarDespesa = (index) => {
+            const item = lixeira.despesas[index];
+            expenses.push(item);
+            lixeira.despesas.splice(index, 1);
+            saveAll();
+            renderAll();
+        };
+
+        window.removerDespesaLixo = (index) => {
+            lixeira.despesas.splice(index, 1);
+            saveAll();
+            renderLixeira();
+        };
+
+        window.restaurarReceita = (index) => {
+            const item = lixeira.receitas[index];
+            receitas.push(item);
+            balanceReceitas += item.valor;
+            lixeira.receitas.splice(index, 1);
+            saveAll();
+            renderAll();
+        };
+
+        window.removerReceitaLixo = (index) => {
+            lixeira.receitas.splice(index, 1);
+            saveAll();
+            renderLixeira();
+        };
+
+        window.restaurarTransferencia = (index) => {
+            const item = lixeira.transferencias[index];
+            transferencias.push(item);
+            lixeira.transferencias.splice(index, 1);
+            saveAll();
+            renderAll();
+        };
+
+        window.removerTransferenciaLixo = (index) => {
+            lixeira.transferencias.splice(index, 1);
+            saveAll();
+            renderLixeira();
+        };
+
+        if (esvaziarLixeiraBtn) {
+            esvaziarLixeiraBtn.addEventListener('click', () => {
+                showConfirm('Esvaziar a lixeira permanentemente?', () => {
+                    lixeira = { despesas: [], receitas: [], transferencias: [] };
+                    saveAll();
+                    renderLixeira();
+                });
+            });
+        }
+
+        function renderConfigDespesas(containerId, configObj, storageKey) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            let html = '';
+            for (let item in configObj) {
+                html += `<div class="config-item" data-item="${item}">
+                    <input type="text" class="config-item-nome" value="${item}" placeholder="Nome">
+                    <input type="number" class="config-item-valor" value="${configObj[item]}" step="0.01" placeholder="Valor">
+                    ${userCan('canManageConfig') ? `<button class="remover-item" onclick="removerItemConfig('${storageKey}', '${item}')"><i class="fas fa-times"></i></button>` : ''}
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        window.removerItemConfig = (storageKey, item) => {
+            if (!userCan('canManageConfig')) return;
+            showConfirm(`Remover item "${item}"?`, () => {
+                let config;
+                if (storageKey === STORAGE_CONFIG_DESPESAS_FIXAS) config = configDespesasFixas;
+                else if (storageKey === STORAGE_CONFIG_DESPESAS_VARIAVEIS) config = configDespesasVariaveis;
+                else if (storageKey === STORAGE_CONFIG_DESPESAS_EXTRAS) config = configDespesasExtras;
+                if (config && config.hasOwnProperty(item)) {
+                    delete config[item];
+                    saveAll();
+                    renderAllConfigs();
+                    if (document.getElementById('catSelect').value === 
+                        (storageKey === STORAGE_CONFIG_DESPESAS_FIXAS ? 'fixa' : 
+                         storageKey === STORAGE_CONFIG_DESPESAS_VARIAVEIS ? 'variavel' : 'extra')) {
+                        const cat = storageKey === STORAGE_CONFIG_DESPESAS_FIXAS ? 'fixa' : 
+                                   storageKey === STORAGE_CONFIG_DESPESAS_VARIAVEIS ? 'variavel' : 'extra';
+                        populateItemSelect(cat, document.getElementById('itemSelect'), document.getElementById('amountInput'));
+                    }
+                }
+            });
+        };
+
+        function renderAllConfigs() {
+            renderConfigDespesas('configDespesasFixas', configDespesasFixas, STORAGE_CONFIG_DESPESAS_FIXAS);
+            renderConfigDespesas('configDespesasVariaveis', configDespesasVariaveis, STORAGE_CONFIG_DESPESAS_VARIAVEIS);
+            renderConfigDespesas('configDespesasExtras', configDespesasExtras, STORAGE_CONFIG_DESPESAS_EXTRAS);
+            renderEmolumentosList();
+            renderIndicadoresConfig();
+        }
+
+        document.getElementById('salvarConfigDespesasFixas')?.addEventListener('click', () => {
+            if (!userCan('canManageConfig')) return;
+            const container = document.getElementById('configDespesasFixas');
+            const itens = container.querySelectorAll('.config-item');
+            const novasConfig = {};
+            itens.forEach(item => {
+                const nomeInput = item.querySelector('.config-item-nome');
+                const valorInput = item.querySelector('.config-item-valor');
+                const novoNome = nomeInput.value.trim();
+                if (novoNome) {
+                    novasConfig[novoNome] = parseFloat(valorInput.value) || 0;
+                }
+            });
+            configDespesasFixas = novasConfig;
+            saveAll();
+            renderAllConfigs();
+            if (document.getElementById('catSelect').value === 'fixa') {
+                populateItemSelect('fixa', document.getElementById('itemSelect'), document.getElementById('amountInput'));
+            }
+            alert('Itens fixos guardados.');
+        });
+
+        document.getElementById('salvarConfigDespesasVariaveis')?.addEventListener('click', () => {
+            if (!userCan('canManageConfig')) return;
+            const container = document.getElementById('configDespesasVariaveis');
+            const itens = container.querySelectorAll('.config-item');
+            const novasConfig = {};
+            itens.forEach(item => {
+                const nomeInput = item.querySelector('.config-item-nome');
+                const valorInput = item.querySelector('.config-item-valor');
+                const novoNome = nomeInput.value.trim();
+                if (novoNome) {
+                    novasConfig[novoNome] = parseFloat(valorInput.value) || 0;
+                }
+            });
+            configDespesasVariaveis = novasConfig;
+            saveAll();
+            renderAllConfigs();
+            if (document.getElementById('catSelect').value === 'variavel') {
+                populateItemSelect('variavel', document.getElementById('itemSelect'), document.getElementById('amountInput'));
+            }
+            alert('Itens variáveis guardados.');
+        });
+
+        document.getElementById('salvarConfigDespesasExtras')?.addEventListener('click', () => {
+            if (!userCan('canManageConfig')) return;
+            const container = document.getElementById('configDespesasExtras');
+            const itens = container.querySelectorAll('.config-item');
+            const novasConfig = {};
+            itens.forEach(item => {
+                const nomeInput = item.querySelector('.config-item-nome');
+                const valorInput = item.querySelector('.config-item-valor');
+                const novoNome = nomeInput.value.trim();
+                if (novoNome) {
+                    novasConfig[novoNome] = parseFloat(valorInput.value) || 0;
+                }
+            });
+            configDespesasExtras = novasConfig;
+            saveAll();
+            renderAllConfigs();
+            if (document.getElementById('catSelect').value === 'extra') {
+                populateItemSelect('extra', document.getElementById('itemSelect'), document.getElementById('amountInput'));
+            }
+            alert('Itens extras guardados.');
+        });
+
+        function renderUserList() {
+            if (!currentUser || !userCan('canManageUsers')) return;
+            const container = document.getElementById('userList');
+            if (!container) return;
+            let html = '';
+            users.forEach(u => {
+                html += `<div class="user-row ${u.active ? '' : 'blocked'}">
+                    <div class="user-info-text">
+                        <strong>${u.name}</strong> (${u.role})<br>
+                        <small>${u.email}</small> | ${u.cargo || '-'} | Salário: ${u.salario ? formatCurrency(u.salario) : '-'}
+                    </div>
+                    <div class="user-actions">
+                        <button onclick="editUserModal(${u.id})" title="Editar"><i class="fas fa-pen"></i></button>
+                        <button onclick="toggleBlockUser(${u.id})" title="${u.active ? 'Bloquear' : 'Desbloquear'}"><i class="fas fa-ban" style="color:#c0392b"></i></button>
+                        <button onclick="deleteUser(${u.id})" title="Eliminar"><i class="fas fa-trash" style="color:#7f8c8d"></i></button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        let editingUserId = null;
+
+        window.editUserModal = (id) => {
+            if (!userCan('canManageUsers')) return;
+            const user = users.find(u => u.id === id);
+            if (!user) return;
+            editingUserId = id;
+            document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-edit"></i> Editar Utilizador';
+            document.getElementById('editUserName').value = user.name;
+            document.getElementById('editUserEmail').value = user.email;
+            document.getElementById('editUserRole').value = user.role;
+            document.getElementById('editUserPassword').value = '';
+            document.getElementById('editUserCargo').value = user.cargo || '';
+            document.getElementById('editUserSalario').value = user.salario || 0;
+            document.getElementById('editUserActive').checked = user.active;
+            userEditModal.classList.add('show');
+        };
+
+        document.getElementById('addUserBtn')?.addEventListener('click', () => {
+            if (!userCan('canManageUsers')) return;
+            editingUserId = null;
+            document.getElementById('userModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Novo Utilizador';
+            document.getElementById('editUserName').value = '';
+            document.getElementById('editUserEmail').value = '';
+            document.getElementById('editUserRole').value = 'assistente';
+            document.getElementById('editUserPassword').value = '';
+            document.getElementById('editUserCargo').value = '';
+            document.getElementById('editUserSalario').value = '';
+            document.getElementById('editUserActive').checked = true;
+            userEditModal.classList.add('show');
+        });
+
+        document.getElementById('editUserSaveBtn')?.addEventListener('click', () => {
+            if (!userCan('canManageUsers')) return;
+            const name = document.getElementById('editUserName').value.trim();
+            const email = document.getElementById('editUserEmail').value.trim();
+            const role = document.getElementById('editUserRole').value;
+            const password = document.getElementById('editUserPassword').value;
+            const cargo = document.getElementById('editUserCargo').value;
+            const salario = parseFloat(document.getElementById('editUserSalario').value) || 0;
+            const active = document.getElementById('editUserActive').checked;
+
+            if (!name || !email) {
+                alert('Nome e email são obrigatórios.');
+                return;
+            }
+
+            if (editingUserId) {
+                const user = users.find(u => u.id === editingUserId);
+                if (user) {
+                    user.name = name;
+                    user.email = email;
+                    user.role = role;
+                    if (password) user.password = password;
+                    user.cargo = cargo;
+                    user.salario = salario;
+                    user.active = active;
+                }
+            } else {
+                if (!password) {
+                    alert('Defina uma senha para o novo utilizador.');
+                    return;
+                }
+                const newId = users.length ? Math.max(...users.map(u => u.id)) + 1 : 4;
+                users.push({
+                    id: newId,
+                    name,
+                    email,
+                    password,
+                    role,
+                    active,
+                    cargo,
+                    salario
+                });
+            }
+            saveAll();
+            renderUserList();
+            userEditModal.classList.remove('show');
+        });
+
+        document.getElementById('editUserCancelBtn')?.addEventListener('click', () => userEditModal.classList.remove('show'));
+
+        window.toggleBlockUser = (id) => {
+            if (!userCan('canManageUsers')) return;
+            if (id === currentUser?.id) { alert('Não pode bloquear-se'); return; }
+            const user = users.find(u => u.id === id);
+            if (user) { user.active = !user.active; saveAll(); renderUserList(); }
+        };
+
+        window.deleteUser = (id) => {
+            if (!userCan('canManageUsers')) return;
+            if (id === currentUser?.id) { alert('Não pode eliminar-se'); return; }
+            showConfirm('Eliminar utilizador?', () => {
+                users = users.filter(u => u.id !== id);
+                saveAll();
+                renderUserList();
+            });
+        };
+
+        if (addNewRoleBtn) {
+            addNewRoleBtn.addEventListener('click', () => {
+                addRoleModal.classList.add('show');
+            });
+        }
+
+        if (addRoleConfirmBtn) {
+            addRoleConfirmBtn.addEventListener('click', () => {
+                const novaFuncao = novaFuncaoNome.value.trim();
+                if (!novaFuncao) {
+                    alert('Digite o nome da função.');
+                    return;
+                }
+                const option = document.createElement('option');
+                option.value = novaFuncao;
+                option.text = novaFuncao;
+                editUserRole.appendChild(option);
+                rolePermissions[novaFuncao] = { ...rolePermissions['assistente'] };
+                saveAll();
+                addRoleModal.classList.remove('show');
+                novaFuncaoNome.value = '';
+                alert('Função adicionada! Pode configurar as permissões na aba Permissões.');
+            });
+        }
+
+        if (addRoleCancelBtn) {
+            addRoleCancelBtn.addEventListener('click', () => {
+                addRoleModal.classList.remove('show');
+            });
+        }
+
+        let chartInstance = null;
+        function atualizarGrafico() {
+            const ctx = document.getElementById('graficoMensal').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            const now = new Date(), year = now.getFullYear();
+            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const dados = new Array(12).fill(0);
+            expenses.filter(e => e.status === 'approved').forEach(ex => {
+                const d = new Date(ex.date + 'T12:00:00');
+                if (d.getFullYear() === year) dados[d.getMonth()] += ex.amount;
+            });
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: meses, datasets: [{ label: 'Despesas (Kz)', data: dados, backgroundColor: 'rgba(30,60,114,0.7)', borderRadius: 8 }] },
+                options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function gerarPDF(imprimir = false) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const inicio = document.getElementById('extratoMesInicio').value;
+            const fim = document.getElementById('extratoMesFim').value;
+            const tipo = document.getElementById('extratoTipo').value;
+            const { gastosDespesas, gastosReceitas } = calcularGastos();
+            const quotas = calcularQuotasRecebidas();
+
+            let titulo = 'Ordem dos Advogados de Angola - Malanje\n';
+            titulo += 'Extrato Financeiro\n';
+            if (inicio && fim) titulo += `Período: ${inicio} a ${fim}\n`;
+            else if (inicio) titulo += `Mês: ${inicio}\n`;
+            else titulo += 'Período: Todo o histórico\n';
+            titulo += `Emitido em: ${new Date().toLocaleDateString('pt-PT')}\n\n`;
+
+            doc.setFontSize(16);
+            doc.text(titulo, 14, 20);
+            doc.setFontSize(12);
+            let y = 50;
+
+            doc.text(`Saldo de Despesas: ${formatCurrency(balanceDespesas)}`, 14, y);
+            y += 7;
+            doc.text(`Saldo de Receitas: ${formatCurrency(balanceReceitas)}`, 14, y);
+            y += 7;
+            doc.text(`Gastos (Despesas): ${formatCurrency(gastosDespesas)}`, 14, y);
+            y += 7;
+            doc.text(`Gastos (Receitas): ${formatCurrency(gastosReceitas)}`, 14, y);
+            y += 7;
+            doc.text(`Quotas Recebidas: ${formatCurrency(quotas)}`, 14, y);
+            y += 10;
+
+            if (indicadores.length > 0) {
+                doc.text('Indicadores Personalizados:', 14, y);
+                y += 7;
+                indicadores.forEach(ind => {
+                    doc.text(`${ind.nome} - Saldo: ${formatCurrency(ind.saldo)} | Gastos: ${formatCurrency(ind.gasto)}`, 14, y);
+                    y += 7;
+                });
+                y += 3;
+            }
+
+            let despesasFiltradas = expenses.filter(e => e.status === 'approved');
+            let receitasFiltradas = receitas;
+
+            if (inicio || fim) {
+                const inicioStr = inicio || '0000-01';
+                const fimStr = fim || '9999-12';
+                despesasFiltradas = despesasFiltradas.filter(e => e.date.substring(0, 7) >= inicioStr && e.date.substring(0, 7) <= fimStr);
+                receitasFiltradas = receitasFiltradas.filter(r => r.data.substring(0, 7) >= inicioStr && r.data.substring(0, 7) <= fimStr);
+            }
+
+            if (tipo === 'despesas' || tipo === 'ambos') {
+                doc.text('Despesas Aprovadas:', 14, y);
+                y += 5;
+                if (despesasFiltradas.length > 0) {
+                    const body = despesasFiltradas.map(e => {
+                        let origem = e.origem;
+                        if (e.origem === 'despesas') origem = 'Despesas';
+                        else if (e.origem === 'receitas') origem = 'Receitas';
+                        else if (e.origem.startsWith('indicador_')) {
+                            const id = parseInt(e.origem.split('_')[1]);
+                            const ind = indicadores.find(i => i.id === id);
+                            origem = ind ? `Saldo de ${ind.nome}` : e.origem;
+                        }
+                        return [e.date, e.item, e.description || '-', origem, formatCurrency(e.amount)];
+                    });
+                    doc.autoTable({
+                        startY: y,
+                        head: [['Data', 'Item', 'Descrição', 'Origem', 'Valor']],
+                        body: body,
+                        theme: 'striped',
+                        headStyles: { fillColor: [30, 60, 114] },
+                        margin: { left: 14, right: 14 }
+                    });
+                    y = doc.lastAutoTable.finalY + 10;
+                } else {
+                    doc.text('Nenhuma despesa no período.', 14, y);
+                    y += 10;
+                }
+            }
+
+            if (tipo === 'receitas' || tipo === 'ambos') {
+                doc.text('Receitas:', 14, y);
+                y += 5;
+                if (receitasFiltradas.length > 0) {
+                    const body = receitasFiltradas.map(r => [r.data, r.descricao, r.descricaoAdicional || '-', formatCurrency(r.valor)]);
+                    doc.autoTable({
+                        startY: y,
+                        head: [['Data', 'Descrição', 'Detalhe', 'Valor']],
+                        body: body,
+                        theme: 'striped',
+                        headStyles: { fillColor: [241, 196, 15], textColor: [0, 0, 0] },
+                        margin: { left: 14, right: 14 }
+                    });
+                    y = doc.lastAutoTable.finalY + 10;
+                } else {
+                    doc.text('Nenhuma receita no período.', 14, y);
+                    y += 10;
+                }
+            }
+
+            if (imprimir) {
+                const pdfBlob = doc.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                const printWindow = window.open(pdfUrl);
+                printWindow.onload = function () { printWindow.print(); };
+            } else {
+                doc.save('extrato_oaa.pdf');
+            }
+        }
+
+        document.getElementById('gerarPDFBtn')?.addEventListener('click', () => gerarPDF(false));
+        document.getElementById('imprimirRelatorioBtn')?.addEventListener('click', () => gerarPDF(true));
+
+        document.getElementById('searchInput')?.addEventListener('input', renderTabelaFiltrada);
+        document.getElementById('filterCategoria')?.addEventListener('change', renderTabelaFiltrada);
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                const tabId = 'tab' + tab.dataset.tab.charAt(0).toUpperCase() + tab.dataset.tab.slice(1);
+                document.getElementById(tabId).classList.add('active');
+                if (tab.dataset.tab === 'admin') renderUserList();
+                if (tab.dataset.tab === 'permissoes') renderPermissoes();
+                if (tab.dataset.tab === 'resumo') { renderTabelaFiltrada(); atualizarGrafico(); renderTabelaReceitasResumo(); }
+                if (tab.dataset.tab === 'receitas') { preencherEmolumentos(); renderTabelaReceitas(); renderTabelaEmolumentos(); }
+                if (tab.dataset.tab === 'transferencias') renderTabelaTransferencias();
+                if (tab.dataset.tab === 'lixeira') renderLixeira();
+                if (tab.dataset.tab === 'config') { renderAllConfigs(); }
+                if (tab.dataset.tab === 'programador') { renderTextosEditaveis(); }
+            });
+        });
+
+        function renderTabelaReceitasResumo() {
+            const container = document.getElementById('tabelaReceitasResumo');
+            if (!receitas.length) { container.innerHTML = '<p style="padding:12px; text-align:center;">Nenhuma receita registada.</p>'; return; }
+            let html = '<table><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr>';
+            receitas.sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 10).forEach(r => {
+                html += `<tr><td>${r.data}</td><td>${r.descricao}${r.descricaoAdicional ? ' - ' + r.descricaoAdicional : ''}</td><td>${formatCurrency(r.valor)}</td></tr>`;
+            });
+            html += '</table>';
+            container.innerHTML = html;
+        }
+
+        document.getElementById('changePwdBtn')?.addEventListener('click', () => {
+            if (!currentUser) return;
+            const old = document.getElementById('oldPwd').value;
+            const newP = document.getElementById('newPwd').value;
+            const conf = document.getElementById('confirmPwd').value;
+            if (currentUser.password !== old) { alert('Senha atual incorreta'); return; }
+            if (newP !== conf) { alert('Nova senha e confirmação diferentes'); return; }
+            if (newP.length < 4) { alert('A nova senha deve ter pelo menos 4 caracteres'); return; }
+            currentUser.password = newP;
+            pwdExpiry[currentUser.email] = Date.now();
+            saveAll();
+            alert('Senha alterada com sucesso.');
+            checkPwdExpiry();
+            document.getElementById('oldPwd').value = '';
+            document.getElementById('newPwd').value = '';
+            document.getElementById('confirmPwd').value = '';
+        });
+
+        if (changePwdLink) {
+            changePwdLink.addEventListener('click', (e) => { e.preventDefault(); document.querySelector('.tab[data-tab="perfil"]').click(); });
+        }
+
+        const modal = document.getElementById('confirmModal');
+        const modalMsg = document.getElementById('modalMessage');
+        let confirmCallback = null;
+        window.showConfirm = (msg, onConfirm) => {
+            modalMsg.innerText = msg;
+            confirmCallback = onConfirm;
+            modal.classList.add('show');
+        };
+        document.getElementById('modalConfirmBtn').onclick = () => { if (confirmCallback) confirmCallback(); modal.classList.remove('show'); };
+        document.getElementById('modalCancelBtn').onclick = () => modal.classList.remove('show');
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+        if (editModal) editModal.addEventListener('click', (e) => { if (e.target === editModal) editModal.classList.remove('show'); });
+        if (saldoModal) saldoModal.addEventListener('click', (e) => { if (e.target === saldoModal) saldoModal.classList.remove('show'); });
+        if (userEditModal) userEditModal.addEventListener('click', (e) => { if (e.target === userEditModal) userEditModal.classList.remove('show'); });
+        if (transferModal) transferModal.addEventListener('click', (e) => { if (e.target === transferModal) transferModal.classList.remove('show'); });
+        if (emolumentoEditModal) emolumentoEditModal.addEventListener('click', (e) => { if (e.target === emolumentoEditModal) emolumentoEditModal.classList.remove('show'); });
+        if (addIndicadorModal) addIndicadorModal.addEventListener('click', (e) => { if (e.target === addIndicadorModal) addIndicadorModal.classList.remove('show'); });
+        if (addItemFixoModal) addItemFixoModal.addEventListener('click', (e) => { if (e.target === addItemFixoModal) addItemFixoModal.classList.remove('show'); });
+        if (addItemVariavelModal) addItemVariavelModal.addEventListener('click', (e) => { if (e.target === addItemVariavelModal) addItemVariavelModal.classList.remove('show'); });
+        if (addItemExtraModal) addItemExtraModal.addEventListener('click', (e) => { if (e.target === addItemExtraModal) addItemExtraModal.classList.remove('show'); });
+        if (addRoleModal) addRoleModal.addEventListener('click', (e) => { if (e.target === addRoleModal) addRoleModal.classList.remove('show'); });
+
+        function renderAll() {
+            atualizarCardsFixos();
+            renderFluxoTables();
+            computeTotais();
+            renderTabelaFiltrada();
+            renderTabelaReceitas();
+            renderTabelaEmolumentos();
+            preencherEmolumentos();
+            renderCardsPersonalizados();
+            atualizarOrigens();
+            atualizarOrigensEdit();
+            renderTabelaTransferencias();
+            renderLixeira();
+            if (userCan('canManageUsers')) {
+                renderUserList();
+            }
+            applyCustomTexts();
+            updateTabsVisibility();
+            if (userCan('canManageIndicadores') || userCan('canTransfer')) {
+                actionButtonsContainer.style.display = 'flex';
+                btnAdicionarIndicador.style.display = userCan('canManageIndicadores') ? 'flex' : 'none';
+                btnTransferir.style.display = userCan('canTransfer') ? 'flex' : 'none';
+            } else {
+                actionButtonsContainer.style.display = 'none';
+            }
+            [editarSaldoDespesasBtn, editarSaldoReceitasBtn, editarGastosDespesasBtn, editarGastosReceitasBtn, editarQuotasRecebidasBtn].forEach(btn => {
+                if (btn) btn.style.display = userCan('canEditSaldo') ? 'inline-flex' : 'none';
+            });
+            formDespesaContainer.style.display = userCan('canApprove') ? 'block' : 'none';
+            formReceitaContainer.style.display = userCan('canApprove') ? 'block' : 'none';
+            if (limparHistoricoReceitasBtn) {
+                limparHistoricoReceitasBtn.style.display = userCan('canDelete') ? 'inline-flex' : 'none';
+            }
+        }
+
+        function isPasswordExpired(email) {
+            if (!email) return false;
+            const user = users.find(u => u.email === email);
+            if (user && user.role === 'admin') return false;
+            const lastChange = pwdExpiry[email];
+            if (!lastChange) return true;
+            return (Date.now() - lastChange) > (90 * 24 * 60 * 60 * 1000);
+        }
+
+        function checkPwdExpiry() {
+            pwdWarningBanner.style.display = (currentUser && isPasswordExpired(currentUser.email)) ? 'flex' : 'none';
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPassword').value;
+            const user = users.find(u => u.email === email && u.password === pass);
+            if (user) {
+                if (!user.active) {
+                    alert('Utilizador bloqueado, entre em contato com administrador ou com OAA');
+                    return;
+                }
+                currentUser = user;
+                localStorage.setItem(STORAGE_CURRENT_USER, user.email);
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                showDashboard();
+            } else alert('Credenciais inválidas');
+        });
+
+        function showDashboard() {
+            if (!currentUser) return showLogin();
+            loginScreen.style.display = 'none';
+            dashboard.style.display = 'block';
+            displayName.innerText = currentUser.name;
+            displayRole.innerText = currentUser.role;
+            checkPwdExpiry();
+            renderAll();
+            atualizarGrafico();
+        }
+
+        function showLogin() { loginScreen.style.display = 'block'; dashboard.style.display = 'none'; }
+        document.getElementById('logoutBtn').addEventListener('click', () => { currentUser = null; localStorage.removeItem(STORAGE_CURRENT_USER); showLogin(); });
+
+        if (currentUser) showDashboard(); else showLogin();
+
+        window.approveExpense = window.approveExpense;
+        window.deleteExpense = window.deleteExpense;
+        window.openEditModal = window.openEditModal;
+        window.toggleBlockUser = window.toggleBlockUser;
+        window.deleteUser = window.deleteUser;
+        window.editUserModal = window.editUserModal;
+        window.removerIndicador = window.removerIndicador;
+        window.editarEmolumento = window.editarEmolumento;
+        window.removerEmolumento = window.removerEmolumento;
+        window.deleteReceita = window.deleteReceita;
+        window.deleteTransferencia = window.deleteTransferencia;
+        window.restaurarDespesa = window.restaurarDespesa;
+        window.removerDespesaLixo = window.removerDespesaLixo;
+        window.restaurarReceita = window.restaurarReceita;
+        window.removerReceitaLixo = window.removerReceitaLixo;
+        window.restaurarTransferencia = window.restaurarTransferencia;
+        window.removerTransferenciaLixo = window.removerTransferenciaLixo;
+        window.removerItemConfig = window.removerItemConfig;
+    })();
+</script>
+<!-- Service Worker Registration -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registrado com sucesso:', reg.scope))
+                .catch(err => console.log('Erro ao registrar Service Worker:', err));
+        });
+    }
+</script>
+</body>
+</html>
